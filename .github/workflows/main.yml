@@ -27,7 +27,7 @@ jobs:
 
       - name: Copy Build Artifacts from Container
         run: |
-          docker cp angular-container:/app/dist/frontend ./dist/frontend
+          docker cp angular-container:/app/dist/auth-portal ./dist/auth-portal
 
       - name: Stop and Remove Container
         run: |
@@ -43,4 +43,4 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync ./dist/frontend s3://your-angular-builds-bucket/ --delete
+          aws s3 sync ./dist/auth-portal s3://doqfy-sample-check/ --delete
