@@ -1,0 +1,27 @@
+@media (max-width:500px) {
+    .dashboard-page{
+        display: block !important;
+
+    }
+    .main-container{
+        overflow-x: hidden;
+        margin: auto;
+        padding: 2rem 1rem;
+    }
+
+    .page-title{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    .container-title{
+        flex-wrap: wrap;
+
+    }
+
+    .bi-arrow-left-circle{
+        margin-left: 0;
+    }
+
+}

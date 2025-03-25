@@ -1,0 +1,209 @@
+@import '/src/color.scss';
+
+.container-title{
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 1.5rem 0;
+    padding-top: 3rem;
+}
+
+.container-content{
+    font-size: 0.8rem;
+    // padding-top: 1rem;
+}
+
+.sm-container{
+    // margin-left: 3rem;
+    min-height: 50px;
+}
+
+.sm-container-title{
+    font-size: 1rem;
+    font-weight: 600;
+    padding-top: 1rem;
+}
+
+.sm-container-content{
+    font-size: 0.8rem;
+    // margin-left: 3rem;
+    padding: 1rem 0;
+}
+
+.wf-api-header{
+    display: flex;
+    justify-content: space-between;
+    max-width: 800px;
+}
+
+.wf-credits-label{
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.wf-credits-container{
+    height: min-content;
+    margin-top: auto;
+}
+
+.wf-credits{
+    display: flex;
+    justify-content: space-between;
+    min-width: 250px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.wf-credits-value{
+    background-color: aqua;
+    padding: 2px 1rem;
+    border-radius: 10px;
+    
+}
+
+.method-blue-btn{
+    background-color: $darkBlue;
+    color: $fontWhite;
+    padding: 3px 2rem;
+    border-radius: 10px;
+    width: fit-content;
+    font-weight: 500;
+}
+
+.params-container{
+    border: 1px solid $BorderGrey;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    padding: 0rem 1rem;
+    border-radius: 8px;
+    background-color: $backgroundGrey ;
+}
+
+.params{
+    padding: 1rem;
+    border-bottom: 1px solid $BorderGrey;
+}
+
+.last-param{
+    border-bottom: none !important;
+}
+
+.params-header{
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-label{
+    display: flex;
+    align-items: baseline;
+}
+
+.header-label div{
+    margin-right: 0.5rem;
+    line-height: 2rem;
+    // padding-bottom: ;
+    // height: 2rem;
+}
+
+.header-label{
+
+    .param-name{
+        font-weight: bold;
+    }
+
+    .param-type{
+        font-size: 0.7rem;
+    }
+    .param-required{
+        color: rgba(235, 41, 16, 0.897);
+        font-weight: 500;
+        font-size: 0.7rem;
+    }
+} 
+
+.params-input{
+    border-radius: 10px;
+    border: 1px solid $BorderGrey;
+    padding: 5px 1rem;
+}
+
+.param-detail{
+    word-break: break-all;
+}
+
+.status-code-success-color{
+    background-color: $backgroundGreen;
+    border-radius: 50%;
+    height: 10px;
+    width: 10px;
+}
+
+.status-code-danger-color{
+    background-color: rgba(235, 41, 16, 0.897);
+    border-radius: 50%;
+    height: 10px;
+    width: 10px;
+}
+
+
+
+.pre-statu-code-container{
+    padding: 0.5rem;
+}
+.status-code-container{
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+
+}
+
+.status-code-container div{
+    margin-right: 0.5rem;
+}
+
+.status-code-container .status-code{
+    font-weight: bold;
+}
+
+.body-container{
+    background: #363740;
+    color: $fontWhite;
+    padding: 1rem;
+    font-weight: 500;
+    // box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    margin: 1rem auto;
+    border-radius: 15px;
+}
+
+.execute-btn-container{
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    align-items: center;
+    width: 100%;
+}
+
+.execute-api{
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background-color:rgba(235, 41, 16, 0.897);
+    color: $fontWhite;
+    margin: auto;
+    font-weight: 600;
+}
+
+.disable{
+    pointer-events: none;
+    opacity: 0.5; /* Optional: Reduce opacity to visually indicate the button is disabled */
+    cursor: not-allowed; 
+    background-color: $BorderGrey;
+    border: 1px solid ;
+    // color: rgb(241, 69, 69);
+}
+
+.btn-clicked {
+    background-color: rgba(235, 41, 16, 0.897); /* Change to your desired color */
+    border: 2px solid $fontWhite;
+    font-weight: 600;
+  }

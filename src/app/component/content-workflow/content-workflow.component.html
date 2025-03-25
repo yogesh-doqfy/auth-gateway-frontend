@@ -1,0 +1,152 @@
+<!-- <div *ngFor="let message of messages" class="alert alert-info alert-dismissible fade show page-message" role="alert">
+  {{ message }}
+</div> -->
+
+<app-message-modal [messages]="messages"></app-message-modal>
+
+
+<div class="create-workflow-container" *ngIf="createWorkFlow">
+
+
+  <div class="api-list-container">
+
+    <!-- <div class="api-list"> -->
+    <div *ngFor="let item of items" [ngFlowchartStep]="{template: stepContent, type: item.type, data: item.data }"
+      class="api-list">
+      <div class="api-step">
+        {{item.name}}
+      </div>
+    </div>
+
+    <ng-template #stepContent let-data>
+      <div class="step-container">
+        <div class="step-heading">
+          {{ data.data.label || 'Default Heading' }}
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+
+  <div class="board-container">
+
+    <div class="board" ngFlowchartCanvas>
+    </div>
+
+    <button (click)="captureChartData()" class="save-workflow-btn" data-bs-toggle="modal"
+      data-bs-target="#createdWorkflow">Save Workflow</button>
+  </div>
+
+</div>
+
+<div class="workflows">
+
+  <div class="workflow-title-container">
+
+    <div class="workflow-title">
+      My Workflow
+    </div>
+    <button type="button" class="btn workflow-create-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Create Workflow
+    </button>
+
+  </div>
+
+  <div class="workflow-card-container" #workflowContainer>
+
+    <app-workflow-card *ngFor="let workflow of workflows; let i = index" [workflow]="workflow" [index]="i"
+      (switchChange)="handleSwitchChange(workflow.id, $event)"></app-workflow-card>
+
+    <div *ngFor="let card of range(dummyCardCount);" class="workflow-card" style="border:none">
+      <!-- dummy-card -->
+    </div>
+
+    <div class="no-data-found" *ngIf="workflows.length == 0">
+
+      No workflow as of now.
+
+    </div>
+  </div>
+
+
+
+  <div class="workflow-title-container">
+
+    <div class="workflow-title">
+      Recommended WorkFlows
+    </div>
+
+  </div>
+
+
+<div class="workflow-card-container" #RworkflowContainer>
+
+  <app-workflow-card *ngFor="let workflow of Rworkflows; let i = index" [workflow]="workflow" [index]="i"
+    (switchChange)="handleSwitchChange(workflow.id, $event)"></app-workflow-card>
+
+  <div *ngFor="let card of range(RdummyCardCount);" class="workflow-card" style="border:none">
+    <!-- dummy-card -->
+  </div>
+
+  <div class="no-data-found" *ngIf="workflows.length == 0">
+
+    No workflow as of now.
+
+  </div>
+</div>
+
+
+</div>
+
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create Workflow</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" [(ngModel)]="formData.name" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" name="description" [(ngModel)]="formData.description"
+              required></textarea>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn workflow-submit" data-bs-dismiss="modal">Submit</button>
+          <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="createdWorkflow" tabindex="-1" aria-labelledby="createdWorkflowlabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createdWorkflowlabel">Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Your workflow is sucessfully created. Please scroll down to check
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn workflow-submit" data-bs-dismiss="modal">Close</button>
+
+      </div>
+    </div>
+  </div>
+</div>

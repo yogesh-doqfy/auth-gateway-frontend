@@ -1,0 +1,50 @@
+<div *ngFor="let message of messages" class="alert alert-info alert-dismissible fade show" role="alert">
+    {{ message }}
+  </div>
+  
+  <div class="flex-container">
+      <div class="headers header-flex-row">
+        <div class="col-header flex-col" *ngFor="let title of titles; let i=index" [ngStyle]="{ 'width.%': getColumnWidth() }">
+          {{ title }}
+  
+        </div>
+      </div>
+    
+      <div class="data-container" *ngFor="let data of datas">
+        <div class="flex-row">
+          <div class="flex-col" *ngFor="let item of data; let i = index" 
+          [ngStyle]="{ 'width.%': getColumnWidth()}">
+          
+       <span *ngIf="!isBoolean(item)" >{{ item }}</span>
+       <span *ngIf="isBoolean(item)" [style.color]="getStatusColor(item)">
+         {{ getStatusText(item) }}
+       </span>
+       
+     </div>
+     
+  
+            
+    
+        </div>
+      </div>
+    
+      <div class="no-data-found" *ngIf="datas.length == 0" >
+  
+        No data found.
+        
+      </div>
+      <div class="flex-row last-row">
+        <div class="col-row">
+        </div>
+      </div>
+    </div>
+  
+
+
+    <div class="table-footer">
+        <span *ngIf="paginator.has_previous" (click)="onPreviousPageChange()" class="btn" >Previous</span>
+        <span class="btn" *ngIf="paginator.has_previous" (click)="onPageChange(paginator.previous_page_number)" >{{paginator.previous_page_number}}</span>
+        <span class="btn active">{{currentPage}}</span>
+        <span class="btn" *ngIf="paginator.has_next" (click)="onPageChange(paginator.next_page_number)" >{{paginator.next_page_number}}</span>
+        <span *ngIf="paginator.has_next" (click)="onNextPageChange()" class="btn">Next</span>
+    </div>

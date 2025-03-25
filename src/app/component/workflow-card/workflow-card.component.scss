@@ -1,0 +1,83 @@
+@import '/src/color.scss';
+
+.workflows,
+.create-workflow-container {
+  margin: 1rem 50px;
+}
+
+.workflow-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: left;
+  height: 4rem;
+}
+
+.card-content {
+  font-size: 0.7rem;
+
+}
+
+.workflow-card-container {
+  max-width: 100%;
+  // width: 1100px;
+  justify-content: space-between;
+  margin: auto;
+  display: flex;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.workflow-card {
+  border: 2px solid $BorderGrey;
+  padding: 15px 10px;
+  width: 210px;
+  height: 280px;
+  border-radius: 10px;
+  margin: 1rem 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
+.workflow-card .card-content{
+  height: 50%;
+}
+
+.credits {
+  background-color: $backgroundGreen;
+  color: $fontWhite;
+  font-size: 0.8rem;
+  width: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  font-weight: 600;
+  line-height: 1.2rem;
+}
+
+.card-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.create-workflow-container {
+  margin: 2rem;
+}
+
+.blue-btn{
+    border: 1px solid $BorderGrey;
+    background-color: $darkBlue;
+    color: $fontWhite;
+    font-weight: 500;
+    font-size: 0.8rem;
+    border-radius: 10px;
+  }
+

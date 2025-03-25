@@ -1,0 +1,66 @@
+<div class="help-container container">
+    <div class="title">
+        Raise Ticket
+    </div>
+
+    <div class="ticket-container">
+        <div class="ticket-container-container">
+
+        <div class="input-row">
+
+            <div class="input-container">
+                <label for="service">Service</label>
+                <input type="text" name="service" id="service" class="input-field">
+            </div>
+
+            <div class="input-container">
+                <label for="email">Email</label>
+                <input type="text" name="email" id="email" class="input-field">
+            </div>
+
+            <div class="input-container">
+                <label for="phone">Phone Number</label>
+                <input type="text" name="phone" id="phone" class="input-field">
+            </div>
+
+        </div>
+
+        <!-- <ngx-dropzone [config]="config" (success)="onUploadSuccess($event)">
+            <div class="dz-message" style="text-align: center;">
+              <p>Drop files here or click to upload.</p>
+            </div>
+          </ngx-dropzone> -->
+          <div class="input-container">
+            <label for="upload">Upload File</label>
+
+            <div class="upload-container">
+                <i class="bi bi-upload"></i>
+            </div>
+
+          </div>
+
+          <div class="input-row">
+
+              <div class="input-container">
+                  <label for="remark">Remark</label>
+                  <input type="text" name="remark" id="remark" class="input-field remark-input">
+                  
+                </div>
+
+                <button class="send btn">
+                    Send
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="title">
+        Previous Tickets
+    </div>
+
+    <app-flex-table class="table-container" [titles]="titles" [datas]="datas" ></app-flex-table>
+
+</div>

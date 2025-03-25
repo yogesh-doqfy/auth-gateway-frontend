@@ -1,0 +1,18 @@
+@media (max-width:500px) {
+    .table-container{
+        margin: 3rem auto;
+        margin-bottom: 1rem;
+    }
+
+    .date-input{
+        width: 150px;
+    }
+    .search-container{
+        margin: 1rem;
+        justify-content: space-between;
+    }
+    .search-field-container{
+        max-width: 150px;
+        margin-right: auto;
+    }
+}

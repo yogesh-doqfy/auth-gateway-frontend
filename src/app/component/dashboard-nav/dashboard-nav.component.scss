@@ -1,0 +1,108 @@
+@import '/src/color.scss';
+
+.nav-container{
+    display: flex;
+    justify-content: space-between;
+    // width: 100%;
+    padding: 0.5rem 1rem;
+}
+
+.profile-container{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    padding: 2px 0.5rem;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+.profile{
+    // padding-left: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.profile img{
+    height: 3rem;
+}
+
+.nav-title{
+    font-size: 1.5rem;
+    // font-family: "Poppins Bold", sans-serif;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    margin-left: 1.5rem;
+}
+
+.profile-name{
+    display: flex;
+    align-self: center;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.profile{
+    // padding: 0.5rem 1rem;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    height: 1.8rem;
+    width: 1.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 0;
+    // margin-right: 2rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+.dropdown-content{
+    display: none;
+    margin: 0.5rem 1rem;
+    padding: 2px 0;
+    border: none;
+    // background-color: transparent;
+    // border-top: 1px solid $BorderGrey;
+    height: 2.2rem;
+}
+
+.show{
+    display: block;
+}
+
+.bi-chevron-down{
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+
+.profile-container {
+    position: relative;
+}
+
+
+.dropdown-content {
+    position: absolute;
+    top: calc(100% + 3px); /* Adjust the vertical distance from the profile container */
+    right: 0; /* Align to the right edge of the profile container */
+    z-index: 999; /* Ensure the dropdown appears above other content */
+    background-color: white; /* Background color of the dropdown */
+    // border: 1px solid #ccc; /* Border for the dropdown */
+    border-radius: 5px; /* Rounded corners for the dropdown */
+    // box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Box shadow for the dropdown */
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    display: none; /* Initially hide the dropdown */
+}
+
+.dropdown-content.show {
+    // display: block; /* Show the dropdown when dropdownOpen is true */
+    margin: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 0.9rem;
+    border-radius: 10px;
+}

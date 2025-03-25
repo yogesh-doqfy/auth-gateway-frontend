@@ -1,0 +1,54 @@
+.key {
+    color: purple;
+  }
+  .value {
+    color: green;
+  }
+
+  .payload-container{
+    background-color: black;
+    border-radius: 7px;
+    margin: 2rem auto;
+    width: 70%;
+    // min-width: 300px;
+    padding: 1rem 2rem;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.tab-container{
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+}
+
+.bi-copy{
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+
+
+.json-key {
+  color: purple;
+}
+
+.json-value {
+  color: green;
+}
+
+.json-string {
+  color: green;
+}
+
+.json-boolean {
+  color: green;
+}
+
+.json-null {
+  color: green;
+}
+
+
+
+

@@ -1,0 +1,75 @@
+@import '../../../color.scss';
+
+
+
+  .api-card{
+    border-radius: 10px;
+    // box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    // max-width: 300px;
+    // padding:;
+    margin-bottom: 2rem;
+    max-width: 240px;
+    min-width: 240px;
+    height: 280px;
+    // box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+    box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 16px 56px;
+    margin-right: 5px;
+  }
+
+  .card-content-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+  }
+
+
+  .api-image{
+    width: 240px;
+    height: 130px;
+    // aspect-ratio: 3/2;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .api-card .api-content{
+    padding: 1rem;
+    font-size: 0.7rem;
+    // max-height: 45%;
+    // overflow-y: ;
+  }
+  
+  .api-card .api-footer{
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    // padding-bottom: 0.5rem;
+  }
+  
+  .api-footer .api-date{
+    padding: 0 5px;
+    border-left: 1px solid;
+    color: $fontGrey;
+    font-size: 0.7rem;
+  }
+  
+  .api-footer .api-title{
+    padding: 0 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding-left: 1rem;
+  cursor: pointer;
+  }
+  
+  .api-footer .left-content{
+    display: flex;
+  }
+
+  .blue-btn{
+    border: 1px solid $BorderGrey;
+    background-color: $darkBlue;
+    color: $fontWhite;
+    font-weight: 500;
+    font-size: 0.8rem;
+    border-radius: 10px;
+  }
+

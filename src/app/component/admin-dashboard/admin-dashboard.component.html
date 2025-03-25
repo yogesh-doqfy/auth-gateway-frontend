@@ -1,0 +1,157 @@
+<div class="dashboard-container">
+    <div class="profile-container">
+        <div class="content">
+            <div class="date">
+                October 8, 2023
+            </div>
+            <div>
+                <div class="title">
+                    Welcome back, {{ userDetails?.user }}!
+                </div>
+                <div class="grey-content">
+                    Always stay updated with our latest API release
+                </div>
+            </div>
+        </div>
+        <!-- <img [src]="userDetails?.img" [alt]="userDetails?.name" class="user-image"> -->
+    </div>
+
+
+</div>
+
+
+<!-- your.component.html -->
+
+
+
+<div class="analytics-container">
+    <div class="tab-container">
+        <div class="tab" [class.active]="selectedRange === 'today'" (click)="setDateRange('today')">Today</div>
+        <div class="tab" [class.active]="selectedRange === 'yesterday'" (click)="setDateRange('yesterday')">Yesterday</div>
+        <div class="tab" [class.active]="selectedRange === 'week'" (click)="setDateRange('week')">Week</div>
+        <div class="tab" [class.active]="selectedRange === 'month'" (click)="setDateRange('month')">Month</div>
+    </div>
+    
+
+    <div class="flex first-analytics-row">
+
+
+
+        <div class="recharge-history-container">
+            <div class="recharge-content">
+                Recharge History
+            </div>
+            <button class="btn pay-now-btn view-history-btn">View history</button>
+            <div class="recharge-content mt-3rem">
+                Last History
+            </div>
+            <div class="history bg-blue">
+                <div class="flex history-data">
+                    <i class="bi bi-calendar-check-fill"></i>
+                    <span class="history-title">Date:</span>
+                    <span class="history-value">14-05-2023</span>
+                </div>
+
+                <div class="flex history-data">
+                    <i class="bi bi-wallet-fill"></i>
+                    <span class="history-title">Amount:</span>
+                    <span class="history-value">Rs. 1423</span>
+                </div>
+                <div class="flex history-data">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span class="history-title">Credits:</span>
+                    <span class="history-value">1423</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="recharge-container">
+            <div class="recharge-content">
+                Recharge Credits
+            </div>
+            <button class="btn pay-now-btn">Pay Now</button>
+        </div>
+
+<div class="count-container-flex">
+
+        <div class="flex-col">
+
+            <div class="count-container" style="margin-bottom: 1.5rem;">
+                <div class="recharge-content" (click)="goToUsers()">
+                    Active Customers
+                </div>
+                <div class="count-value" (click)="goToUsers()">
+                    {{activeCustomer}}+
+                </div>
+            </div>
+            
+            <div class="count-container" style="margin-top: 1.5rem;">
+                <div class="recharge-content" (click)="goToAPILib()">
+                    Total APIs Hits
+                </div>
+                <div class="count-value" (click)="goToAPILib()">
+                    {{totalApiHits}}+
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-col">
+
+            <div class="count-container" style="margin-bottom: 1.5rem;">
+                <div class="recharge-content" (click)="goToUsers()">
+                    Total Customers
+                </div>
+                <div class="count-value" (click)="goToUsers()">
+                    {{customerCounts}}+
+                </div>
+            </div>
+            
+            <div class="count-container" style="margin-top: 1.5rem;">
+                <div class="recharge-content" (click)="goToUsers()">
+                    Total Credits
+                </div>
+                <div class="count-value" (click)="goToUsers()">
+                    {{totalBalance}}+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    </div>
+
+
+    <div class="flex second-analytics-row">
+        <div class="line-chart-container">
+            <div class="line-chart-header">
+                <div class="line-title">
+                    APIs Used Frequently
+                </div>
+            </div>
+            <app-apex-line-chart [data]="lineChartData" [label]="label" [chartLabel]="chartLabels" ></app-apex-line-chart>
+
+
+        </div>
+
+        <div class="workflows">
+            <div class="workflow-title">
+                Total Sales
+            </div>
+            <div class="workflow" *ngFor="let api of clientUsage">
+                <div class="workflow-header">
+                    <i class="bi bi-check2-circle"></i>
+                    <span class="api-name" >{{api.name}}</span>
+                </div>
+                <span class="workflow-credits">
+                    {{api.count}} calls
+                </span>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>

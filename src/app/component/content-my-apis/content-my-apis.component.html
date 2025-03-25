@@ -1,0 +1,85 @@
+<div>
+
+    <!-- <div *ngFor="let message of messages" class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ message }}
+    </div>-->
+
+    <app-message-modal [messages]="messages"></app-message-modal>
+
+    <div class="search-container">
+        <div class="left-filters">
+            <div class="dropdown-container">
+                <label for="industry-dropdown">Industry</label>
+                <div class="dropdown">
+                    <select [(ngModel)]="sector" (ngModelChange)="getAllAPIs()" id="industry-dropdown"
+                        aria-label="Industry" [class.selected]="sector">
+                        <option value="" disabled selected hidden>Select the Industry</option>
+                        <option *ngFor="let option of sectors" [value]="option">{{ option }}</option>
+                    </select>
+                    <button *ngIf="sector" class="clear-button" (click)="clearSelection()">×</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-filter">
+
+            <div>
+                <label for=""></label>
+                <div class="input-group search-field-container">
+
+                    <span class="input-group-text" id="basic-addon1"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search..." aria-label="Username"
+                        aria-describedby="basic-addon1" [(ngModel)]="searchText" (ngModelChange)="getAllAPIs()">
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+<div>
+    <div class="container api-container container-title enrolled-title">
+        Enrolled APIs:
+    </div>
+
+    <div class="container api-container" *ngIf="apis.length != 0">
+        <!-- <app-api-card *ngFor="let api of apis let i=index" ></app-api-card> -->
+        <app-api-card *ngFor="let api of apis; let i = index" [api]="api" [index]="i"></app-api-card>
+        
+        <div *ngFor="let card of range(dummyCardCount);" class="dummy-card">
+            <!-- dummy-card -->
+        </div>
+        
+    </div>
+        <div class="no-data-found" *ngIf="apis.length == 0" >
+            
+            No api is subscribed as of now.
+            
+        </div>
+        
+        
+    
+</div>
+
+    <div>
+        <div class="container api-container container-title">
+            Recommended APIs for your business
+        </div>
+
+        <div class="container api-container" id="recommendation-api" *ngIf="recommendation.length!=0">
+            
+            <!-- <app-api-card *ngFor="let api of apis let i=index" ></app-api-card> -->
+            <app-api-card *ngFor="let api of recommendation; let i = index" [api]="api" [index]="i"></app-api-card>
+            
+            <div *ngFor="let card of range(recommendationDummyCardCount);" class="dummy-card">
+                <!-- dummy-card -->
+            </div>
+            
+            
+            
+        </div>
+        
+    </div>
+        
+        
+    </div>

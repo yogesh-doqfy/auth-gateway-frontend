@@ -1,0 +1,40 @@
+<!-- <pre>
+    {{'{'}}
+
+        <ng-container *ngFor="let pair of getJsonPairs()">
+            <span class="key">"{{ pair.key }}":</span>
+            <span class="value" *ngIf="isObject(pair.value)">
+                {{ '{' }}
+                <app-json-viewer [json]="pair.value"></app-json-viewer>
+                {{ '}' }}
+            </span>
+            <span class="value" *ngIf="!isObject(pair.value)">{{ pair.value }}</span>
+            <br *ngIf="!lastItem(pair, getJsonPairs())">
+        </ng-container>
+        {{'}'}}
+
+  </pre> -->
+
+  <div class="payload-container">
+    <div class="tab-container">
+        <div class="formats">
+
+            <div>
+                JSON
+            </div>
+        </div>
+
+        <div class="clipboard">
+            <i class="bi bi-copy" (click)="copyToClipboard()" ></i>
+        </div>
+        
+    </div>
+    <span *ngIf="copied" style="text-align: right; display:flex; justify-content:right;font-size:0.5rem;" >Text copied to clipboard</span>
+
+
+  <!-- <pre>
+    {{getFormattedJson()}}
+  </pre> -->
+
+  <prettyjson [obj]="json"></prettyjson>
+  </div>

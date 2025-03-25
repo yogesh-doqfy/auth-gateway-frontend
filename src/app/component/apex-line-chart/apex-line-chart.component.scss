@@ -1,0 +1,24 @@
+@import '~@riapacheco/yutes/seasonal.scss'; // get those colors again
+@import '/src/color.scss';
+
+$width: 320px;
+$height: 200px;
+
+@media (max-width:500px) {
+  $width: 80%;
+$height: 60%;
+  
+}
+
+
+.chart-wrapper {
+  width: 90%;
+  min-width: $width;
+  height: $height;
+  min-height: $height;
+  max-height: $height;
+color: $fontDarkGrey;
+  border-radius: 10px;
+  background-attachment: fixed;
+  font-weight: 700;
+}

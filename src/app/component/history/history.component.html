@@ -1,0 +1,141 @@
+<div class="dashboard-page page">
+
+
+    <!-- <app-sidebar class="app-sidebar"></app-sidebar> -->
+
+    <div class="main-container">
+
+        <div *ngFor="let message of messages" class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ message }}
+        </div>
+
+        <div class="flex-container">
+            <div class="headers header-flex-row">
+                <div class="col-header flex-col" *ngFor="let title of titles; let i=index"
+                    [ngStyle]="{ 'width.%': getColumnWidth() }">
+                    {{ title }}
+
+                </div>
+            </div>
+
+            <div class="data-container" *ngFor="let data of datas; let j=index">
+                <div class="flex-row">
+                    <div class="flex-col" [ngStyle]="{ 'width.%': getColumnWidth() }"
+                        *ngFor="let item of data; let i = index">
+
+                        <span *ngIf="!isNumber(item)">{{ item }}</span>
+                        <span *ngIf="isNumber(item)" [style.color]="getStatusColor(item)">
+                            {{item }}
+                        </span>
+
+                    </div>
+
+                    <div class="flex-col" [ngStyle]="{ 'width.%': getColumnWidth() }">
+                        <i class="bi bi-card-list" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            (click)="callModal(j)"></i>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            <div class="no-data-found" *ngIf="datas.length == 0">
+
+                No data found.
+
+            </div>
+            <div class="flex-row last-row">
+                <div class="col-row">
+                </div>
+            </div>
+        </div>
+
+        <div class="table-footer">
+            <span *ngIf="paginator.has_previous" (click)="onPreviousPageChange()" class="btn" >Previous</span>
+            <span class="btn" *ngIf="paginator.has_previous" (click)="onPageChange(paginator.previous_page_number)" >{{paginator.previous_page_number}}</span>
+            <span class="btn active">{{currentPage}}</span>
+            <span class="btn" *ngIf="paginator.has_next" (click)="onPageChange(paginator.next_page_number)" >{{paginator.next_page_number}}</span>
+            <span *ngIf="paginator.has_next" (click)="onNextPageChange()" class="btn">Next</span>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">API Call Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- <form (ngSubmit)="onSubmit()"> -->
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="header">INPUT</label>
+                            <div class="sm-container-content">
+            <div class="params-container">
+                <div class="params" *ngFor="let param of modalDetail.params; let last = last" [ngClass]="{ 'last-param': last }">
+                    <div class="params-header">
+
+                        <div class="header-label">
+                            <div class="param-name">{{param.label | uppercase}}</div>
+                        </div>
+                        <div class="header-value">
+                            <input type="text" class="params-input" [value]="getParamValue(param)">
+                        </div>
+                    </div>
+                    <div class="param-detail">
+                        
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="header">OUTPUT</label>
+                            <div class="sm-container-content">
+            <div class="params-container">
+                <div class="params" *ngFor="let param of modalDetail.response_details; let last = last" [ngClass]="{ 'last-param': last }">
+                    <div class="params-header" *ngIf="getResponseValue(param)">
+
+                        <div class="header-label">
+                            <div class="param-name">{{param.label | uppercase}}</div>
+                        </div>
+                        <div class="header-value">
+                            <input type="text" class="params-input" [value]="getResponseValue(param)">
+                        </div>
+                    </div>
+                    <div class="param-detail">
+                        
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+                </div>
+
+                
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn workflow-submit" data-bs-dismiss="modal" aria-label="Close">Close</button>
+            </div>
+            <!-- </form> -->
+        </div>
+    </div>
+</div>

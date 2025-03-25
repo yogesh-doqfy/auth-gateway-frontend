@@ -1,0 +1,103 @@
+<div class="page login-page">
+    <!-- <app-header></app-header> -->
+
+    <div *ngFor="let message of messages" class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ message }}
+    </div>
+
+
+    <div class="main-container">
+        <div class="left-container">
+            <div class="left-upper-container">
+                <div class="text-container">
+
+
+                    <p class="bold size-1-2 font-white">
+                        Sign Up to
+                    </p>
+                    <p class="size-1 font-white">
+                        Lorem Ipsum is simply
+                    </p>
+                    <p class="size-0-8 font-white">
+                        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                        the industry's standard dummy text ever since the 1500s,
+                    </p>
+
+                </div>
+                <img src="assets/login/Saly-1.png" alt="" class="login-rocket-image">
+            </div>
+            <div class="left-lower-container">
+
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="login-container">
+                <div class="header-flex">
+                    <p class="size-1">
+                        Welcome to
+                        <span class="font-dark-blue">
+                            DOQFY
+                        </span>
+                    </p>
+                    <div class="sign-up-container">
+                        <div class="size-0-6 account-question">Have an Account ?</div>
+                        <!-- <br> -->
+                        <a routerLink="/auth/login" class="size-0-6 pointer sign-up-btn">Sign In</a>
+
+                    </div>
+                </div>
+                <div class="login-title size-1-5">
+                    Sign Up
+                </div>
+
+
+            <div class="form-field-container">
+                <form [formGroup]="signupForm" (ngSubmit)="signUp()">
+                    <!-- Email -->
+                    <div class="input-field">
+                      <label for="email">Enter your email address</label>
+                      <input type="email" id="email" class="input" formControlName="email" placeholder="Email">
+                      <div *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched" class="error-message">
+                        Email is required and must be a valid email address.
+                      </div>
+                    </div>
+        
+                    <!-- Name -->
+                    <div class="input-field">
+                      <label for="name">Enter your full name</label>
+                      <input type="text" id="name" class="input" formControlName="name" placeholder="Full Name">
+                      <div *ngIf="signupForm.get('name')?.invalid && signupForm.get('name')?.touched" class="error-message">
+                        Full Name is required.
+                      </div>
+                    </div>
+        
+                    <!-- Contact -->
+                    <div class="input-field">
+                      <label for="contact">Enter your contact number</label>
+                      <input type="text" id="contact" class="input" formControlName="contact" placeholder="Contact Number">
+                      <div *ngIf="signupForm.get('contact')?.invalid && signupForm.get('contact')?.touched" class="error-message">
+                        Contact is required and must be a valid 10-digit number.
+                      </div>
+                    </div>
+        
+                    <!-- Password -->
+                    <div class="input-field">
+                      <label for="password">Enter your password</label>
+                      <input type="password" id="password" class="input" formControlName="password" placeholder="Password">
+                      <div *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched" class="error-message">
+                        Password is required and must be at least 6 characters long.
+                      </div>
+                    </div>
+        
+                    <!-- Submit button -->
+                    <button type="submit" class="input-btn">Sign Up</button>
+                  </form>
+            </div>
+            
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<!-- <app-footer></app-footer> -->

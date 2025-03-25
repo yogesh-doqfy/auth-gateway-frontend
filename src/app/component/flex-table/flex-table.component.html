@@ -1,0 +1,85 @@
+<div *ngFor="let message of messages" class="alert alert-info alert-dismissible fade show" role="alert">
+  {{ message }}
+</div>
+
+<div class="flex-container">
+    <div class="headers header-flex-row">
+      <div class="col-header flex-col" *ngFor="let title of titles; let i=index" [ngStyle]="{ 'width.%': getColumnWidth() }">
+        {{ title }}
+
+      </div>
+    </div>
+  
+    <div class="data-container" *ngFor="let data of datas">
+      <div class="flex-row">
+        <div class="flex-col" *ngFor="let item of data; let i = index" 
+        [ngStyle]="{ 'width.%': getColumnWidth(), 'display': i === 0 && isWallet ? 'none' : 'block' }">
+        
+     <span *ngIf="!isBoolean(item)" >{{ item }}</span>
+     <span *ngIf="isBoolean(item)" [style.color]="getStatusColor(item)">
+       {{ getStatusText(item) }}
+     </span>
+     
+   </div>
+   
+
+          
+          <div *ngIf="isWallet" class="flex-col" [ngStyle]="{ 'width.%': getColumnWidth() }">
+            <span >
+              <i class="bi bi-wallet2" data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="changeWalletId(data[0])"></i>
+              
+            </span>
+          </div>
+      <!-- </div> -->
+
+      </div>
+    </div>
+  
+    <div class="no-data-found" *ngIf="datas.length == 0" >
+
+      No data found.
+      
+    </div>
+    <div class="flex-row last-row">
+      <div class="col-row">
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Edit Wallet</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <!-- <form (ngSubmit)="onSubmit()"> -->
+        <div class="modal-body">
+            <div class="form-group">
+              <label for="name">Name </label>
+              <input type="text" class="form-control" id="name" name="name" [(ngModel)]="user[1]" required readonly>
+            </div>
+            <div class="form-group">
+              <label for="amount">Current Credits</label>
+              <input class="form-control" id="amount" name="amount" type="text" [(ngModel)]="user[4]"  required readonly>
+            </div>
+
+            <div class="form-group" *ngIf="add_credits_status">
+              <label for="amount">Add Credits</label>
+              <input class="form-control" id="amount" name="amount" type="text" [(ngModel)]="add_credits"  required>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn workflow-submit" *ngIf="add_credits_status" data-bs-dismiss="modal" (click)="updateWallet()">Submit</button>
+            <button type="button" class="btn workflow-submit" (click)="enable_add_credits()" *ngIf="!add_credits_status" >Add Credits</button>
+          </div>
+        <!-- </form> -->
+      </div>
+    </div>
+  </div>
+  
+  

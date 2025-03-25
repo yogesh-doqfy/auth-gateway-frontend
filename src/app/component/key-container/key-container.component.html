@@ -1,0 +1,80 @@
+<app-message-modal [messages]="messages"></app-message-modal>
+
+
+<div class="credentials-container">
+    <div class="title-container">
+
+        <div class="title">
+            {{details?.title}}
+            
+        </div>
+        <button class="copy" data-bs-toggle="modal" data-bs-target="#exampleModal" *ngIf="details?.prod">Request for production credentials</button>
+    </div>
+
+    <div class="credentials">
+
+
+        <div class="api-key">
+            <div class="key-row">
+        
+            <div class="label">API key</div>
+
+            <button class="copy" (click)="copyToClipboard(details.api_key, 1)" *ngIf="isSmallScreen  " >{{copyText}}</button>
+</div>
+
+            <div class="key-row">
+                <div class="keys" *ngIf="!details?.prod">
+                    {{details?.api_key}}
+                </div>
+                <div class="keys" *ngIf="details?.prod">
+                    *******************
+                </div>
+                <button class="copy" (click)="copyToClipboard(details.api_key, 1)" *ngIf="!isSmallScreen" [disabled]="details?.prod" >{{copyText}}</button>
+            </div>
+        </div>
+        
+        <div class="secret-key">
+            <div class="key-row">
+
+                <div class="label">Secret key</div>
+                <button class="copy" (click)="copyToClipboard(details.secret_key, 2)" *ngIf="isSmallScreen && !details.prod" >{{copyText2}}</button>
+            </div>
+
+            <div class="key-row">
+                <div class="keys" *ngIf="!details?.prod">
+                    {{details?.secret_key}}
+                </div>
+                <div class="keys" *ngIf="details?.prod">
+                    *******************
+                </div>
+
+                <button class="copy" (click)="copyToClipboard(details.secret_key, 2)" *ngIf="!isSmallScreen" [disabled]="details?.prod" >{{copyText2}}</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Production Access</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Do you want to GO LIVE ?
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="requestProdCredentials()">Yes</button>
+          <button type="button" class="btn blue-btn" data-bs-dismiss="modal" >No</button>
+          <!-- <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="onSwitchChange(api.id, index, $event)">Save changes</button> -->
+  
+        </div>
+      </div>
+    </div>
+  </div>
+  
+

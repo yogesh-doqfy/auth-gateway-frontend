@@ -1,0 +1,114 @@
+<div class="page login-page">
+
+    <!-- <app-header></app-header> -->
+    <div *ngFor="let message of messages" class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ message }}
+      </div>
+
+
+<div class="main-container">
+
+    <div class="left-container">
+        <div class="left-upper-container">
+            <div class="text-container">
+
+                
+                <p class="bold size-1-2 font-white">
+                    Sign in to 
+                </p>
+                <p class="size-1 font-white">
+                    Lorem Ipsum is simply 
+                </p>
+                <p class="size-0-8 font-white">
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                </p>
+                
+            </div>
+            <img src="assets/login/Saly-1.png" alt="" class="login-rocket-image">
+        </div>
+        <div class="left-lower-container">
+
+        </div>
+    </div>
+    <div class="right-container">
+        <div class="login-container">
+
+            <div class="header-flex">
+                <p class="size-1">
+                    Welcome to 
+                    <span class="font-dark-blue">
+                        DOQFY
+                    </span>
+                </p>
+                <div class="sign-up-container">
+                    <div class="size-0-6 account-question">Not Account?</div>
+                    <!-- <br> -->
+                    <a routerLink="/auth/sign-up" class="size-0-6 pointer sign-up-btn" >Sign Up</a>
+
+                </div>
+            </div>
+            <div class="login-title size-1-5">
+                Sign in
+            </div>
+
+            <div class="login-options">
+            </div>
+
+            <div class="form-field-container">
+                <div class="input-field">
+                    <label for="email">Enter your username or email address</label>
+                    <input type="text" id="email" class="input" [(ngModel)]="loginData.username" (keyup.enter)="login()" placeholder="Username">
+                </div>
+            
+                <div class="input-field">
+                    <label for="password">Enter your Password</label>
+                    <input type="{{ hidePassword ? 'password' : 'text' }}"  id="password" class="input" [(ngModel)]="loginData.password" (keyup.enter)="login()" placeholder="Password">
+                    <i class="bi bi-eye-fill password-eye" *ngIf="!hidePassword" (click)="toggleHidePassword()"></i>
+                    <i class="bi bi-eye-slash-fill password-eye" *ngIf="hidePassword" (click)="toggleHidePassword()"></i>
+                    
+                </div>
+            
+                <div class="forgot-password">
+                    <a data-bs-toggle="modal" data-bs-target="#exampleModal" class="forget-password">
+                        Forgot Password
+                    </a>
+                </div>
+            
+                <button type="submit" class="input-btn" (click)="login()">Sign In</button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+    
+</div>
+<!-- <app-footer></app-footer> -->
+
+
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Forget Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-field-container">
+                <div class="input-field">
+                    <label for="email">Enter your email address</label>
+                    <input type="text" id="email" class="input" [(ngModel)]="this.forgetEmail" (keyup.enter)="login()" placeholder="Email">
+                </div>
+</div>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="forgotPassword()">Submit</button>
+          <!-- <button type="button" class="btn blue-btn" data-bs-dismiss="modal" >No</button> -->
+  
+        </div>
+      </div>
+    </div>
+  </div>

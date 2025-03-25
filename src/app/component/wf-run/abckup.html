@@ -1,0 +1,159 @@
+<div class="workflow-api-container">
+    <div class="max-width-800">
+        <div class="wf-container">
+
+            <div class="stepper-container">
+                <div class="stepper" *ngFor="let page_ of pages; let i=index">
+                    <span class="stepper-circle"
+                        [ngClass]="{activeStepper: page_<=page, errorStepper: error && page_ === page}">
+                        {{i+1}}
+                    </span>
+                    <span class="stepper-text"
+                        [ngClass]="{activeStepperText: page_<=page, errorStepperText: error && page_ === page}">
+                        {{getCurrentPageApiName(page_).toUpperCase()}}
+                    </span>
+                </div>
+            </div>
+
+            <div style="margin: auto; margin-left:3rem; width:70%;">
+                <div class="form-container">
+                    <div class="api-title">
+                        {{getCurrentPageApiName(page)}}
+                    </div>
+
+                    <div class="params-container">
+
+                        <div class="params" *ngFor="let param of getCurrentPageParams(page); let last = last"
+                            [ngClass]="{ 'last-param': last }">
+                            <div class="form-label" [class.active]="param.value || param.value === 0">
+                                <label for="param_{{param.id}}" class="param-label">{{param.label | uppercase}}</label>
+                            </div>
+
+                            <div class="form-value">
+                                <div class="upload-container" *ngIf="param.type=='base64'">
+                                    <input type="file" (change)="handleFileInput($event, param)" class="upload-btn" [id]="'uploadBtn'+param.name" style="display: none;">
+        
+                                    <label [for]="'uploadBtn'+param.name" class="upload-btn">
+                                        <span *ngIf="!uploadFileName[param.name]">
+                                            Choose File 
+                                        </span>
+        
+                                        <span *ngIf="uploadFileName[param.name]">
+                                            {{uploadFileName[param.name]}}
+                                        </span>
+        
+                                    </label>
+                                </div>
+        
+                                <input type="text" id="param_{{param.id}}" class="params-input"
+                                    [(ngModel)]="param.value" (input)="updatePayload(param)"
+                                    [placeholder]="getPlaceHolder(param)" *ngIf="param.type!='base64'">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="execute-btn-container" *ngIf="execute">
+                        <button type="button" class="execute-api" id="executeBtn" (click)="callPostAPI(api)"
+                            [ngClass]="{disable: !execute}" [class.btn-clicked]="isButtonClicked"
+                            (click)="simulateButtonClick()" *ngIf="api.is_subscribed">
+                            <span *ngIf="!isLastPage() && !isCalling">
+                                Next
+                            </span>
+
+                            <span *ngIf="isLastPage() && !isCalling">
+                                Execute
+                            </span>
+
+                            <div class="spinner-border" role="status" *ngIf="isCalling">
+                                <span class="sr-only"></span>
+                            </div>
+                        </button>
+
+                        <button type="button" class="execute-api" id="executeBtn" [ngClass]="{disable: !execute}"
+                            [class.btn-clicked]="isButtonClicked" (click)="simulateButtonClick()"
+                            *ngIf="!executed && !api.is_subscribed" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">Subscribe API </button>
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+            <!-- </div> -->
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<button data-bs-toggle="modal" data-bs-target="#errorModal" #errorModal style="display: none;">
+    error modal btn
+</button>
+
+
+
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    (click)="closeErrorModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="params-container error-container" *ngIf="error">
+
+                    <div class="params" *ngFor="let param of errorDetails; let last = last"
+                        [ngClass]="{ 'last-param': last }">
+                        <div class="form-label" [class.active]="param.value || param.value === 0">
+                            <label for="param_{{param.id}}" class="param-label error-label">{{param.label |
+                                uppercase}}</label>
+                                
+                            <p type="text" id="param_{{param.id}}" class="params-input error-input">
+                                {{param.value}}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn blue-btn" data-bs-dismiss="modal"
+                    (click)="closeErrorModal()">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="paginator-container" *ngIf="!executed">
+    <!-- <button class="blue-btn">
+        <i class="bi bi-caret-left-fill " *ngIf="hasPreviousPage()" (click)="previousPage()" ></i>
+    </button> -->
+    <!-- {{page}} -->
+
+    <!-- <button class="blue-btn">
+    <i class="bi bi-caret-right-fill " *ngIf="hasNextPage()" (click)="nextPage()" ></i>
+</button> -->
+
+</div>

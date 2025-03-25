@@ -1,0 +1,19 @@
+@media (max-width:500px) {
+    .nav-title{
+        font-size: 1rem;
+        margin: auto;
+        margin-left: 0;
+    }
+
+
+    .profile{
+        padding: 3px 10px;
+        font-size: 1rem;
+    }
+
+    .profile-name, .dropdown-content{
+        font-size: 0.8rem;
+        font-weight: 500;
+
+    }
+}

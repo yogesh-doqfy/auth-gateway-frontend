@@ -1,0 +1,33 @@
+@media (max-width:500px) {
+
+    .sm-container{
+        margin-left: auto;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .sm-container-title{
+        min-width: 80px;
+        font-size: 0.8rem;
+    }
+    .sm-container-content{
+        margin-left: 0;
+    }
+
+    .url-content{
+        word-wrap: break-word;
+        max-width: 200px;
+    }
+    .params-container{
+        padding: 0 0.5rem;
+    }
+    .params{
+        padding: 0.5rem;
+    }
+    .params-header{
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+
+}

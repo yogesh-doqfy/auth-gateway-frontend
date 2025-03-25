@@ -1,0 +1,38 @@
+@import '/src/color.scss';
+
+@media (max-width:500px) {
+    .left-container{
+        display: none;
+    }
+
+    .header-flex .size-1{
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .login-title{
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    .input-field label{
+        font-size: 0.8rem;
+    }
+
+    .input{
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    .input-field{
+        margin-top: 1rem;
+    }
+
+    .input-btn{
+        margin-bottom: 1rem;
+    }
+
+
+    .login-page{
+        background: linear-gradient(to bottom, $darkBlue  50%, $backgroundWhite  50%);
+}
+
+}

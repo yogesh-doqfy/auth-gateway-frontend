@@ -1,0 +1,152 @@
+<div class="dashboard-page page">
+    <app-sidebar class="app-sidebar"></app-sidebar>
+
+    <div class="main-container" *ngIf="!run">
+        <div class="max-width-800">
+
+            <app-message-modal [messages]="messages"></app-message-modal>
+
+
+            <div class="back-container">
+                <i class="bi bi-arrow-left-circle" (click)="toggleRun()"></i>
+            </div>
+            <div class="container-title">
+
+                <div class="page-title">
+                    {{api.name}} <button (click)="toggleRun()" class="blue-btn run-btn">NON DEVELOPER MODE</button>
+
+
+                    <div class="form-check form-switch">
+
+                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked"
+                            [checked]="isChecked" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            (click)="getMessage()" [(ngModel)]="isChecked" />
+                    </div>
+                </div>
+
+                <div class="wf-credits-container">
+                    <div class="wf-credits">
+                        <div class="wf-credits-label">
+                            Credits Per hit:
+                        </div>
+                        <div class="wf-credits-value">
+                            {{api.credits}} Credits
+                        </div>
+                    </div>
+                    <div class="wf-credits ">
+                        <div class="wf-credits-label">
+                            Avilable Credits:
+                        </div>
+                        <div class="wf-credits-value wf-credits-value-red">
+                            {{total_credits}} Credits
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="introduction-container">
+                <div class="container-title">
+                    Introduction
+                </div>
+                <div class="container-content">
+                    {{api.description}}
+                </div>
+            </div>
+
+
+            <div class="specification-container">
+                <div class="container-title">
+                    Specification
+                </div>
+                <div class="container-content">
+                    <div class="sm-container" *ngFor="let specificaiton of specifications">
+                        <div class="sm-container-title">
+                            {{specificaiton.title}}
+                        </div>
+                        <div class="sm-container-content">
+                            {{specificaiton.value}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <app-workflow-api [api]="api" [execute]="true" (updateBalanceEvent)="updateBalance()"></app-workflow-api>
+
+        </div>
+    </div>
+
+
+
+
+    <div class="main-container run-container" *ngIf="run">
+
+        <div class="max-width-800">
+
+            <div class="back-container">
+                <i class="bi bi-arrow-left-circle" (click)="goBack()"></i>
+            </div>
+            <div class="container-title">
+
+                <div class="page-title">
+                    {{api.name}}
+                    <button (click)="toggleRun()" class="blue-btn run-btn">DEVELOPER MODE</button>
+                    <div class="form-check form-switch">
+
+
+                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked"
+                            [checked]="isChecked" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            (click)="getMessage()" [(ngModel)]="isChecked" />
+                    </div>
+                </div>
+
+                <div class="wf-credits-container">
+                    <div class="wf-credits">
+                        <div class="wf-credits-label">
+                            Credits Per hit:
+                        </div>
+                        <div class="wf-credits-value">
+                            {{api.credits}} Credits
+                        </div>
+                    </div>
+                    <div class="wf-credits ">
+                        <div class="wf-credits-label">
+                            Avilable Credits:
+                        </div>
+                        <div class="wf-credits-value wf-credits-value-red">
+                            {{total_credits}} Credits
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-width-800">
+                <app-wf-run [api]="api" (updateBalanceEvent)="updateBalance()"></app-wf-run>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Workflow Subscribe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    (click)="closeModal()"></button>
+            </div>
+            <div class="modal-body">
+                {{getMessage()}}
+                {{message}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="closeModal()">Close</button>
+                <button type="button" class="btn blue-btn" data-bs-dismiss="modal"
+                    (click)="handleSwitchChange(api.id)">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

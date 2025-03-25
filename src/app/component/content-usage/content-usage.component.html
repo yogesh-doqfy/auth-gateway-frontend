@@ -1,0 +1,85 @@
+<div>
+    <div class="search-container">
+        <div class="left-filters">
+
+            <div class="dropdown-container">
+                <label for="industry-dropdown">Industry</label>
+                <div class="dropdown">
+                    <select [(ngModel)]="sector" (ngModelChange)="getAPIUsage()" id="industry-dropdown"
+                        aria-label="Industry" [class.selected]="sector">
+                        <option value="" disabled selected hidden>Select the Industry</option>
+                        <option *ngFor="let option of sectors" [value]="option">{{ option }}</option>
+                    </select>
+                    <button *ngIf="sector" class="clear-button" (click)="clearSelection()">×</button>
+                </div>
+            </div>
+
+
+
+            <!-- <div class="dropdown-container">
+                <label for="api-dropdown">Duration</label>
+                <input type="text" name="daterangeInput" class="date-input" daterangepicker [options]="options"
+                    (selected)="selectedDate($event, daterange)" (click)="selectedDate($event, daterange)" />
+            </div> -->
+
+
+            <div class="dropdown-container">
+                <label for="api-dropdown">Duration</label>
+                <div class="dropdown">
+                    <div class="input-group date-group" >
+                        <div class="calendar-container" >
+                                <i class="bi bi-calendar-date-fill"></i> <!-- Font Awesome calendar icon -->
+                        </div>
+                        <input type="text" name="daterangeInput" class="date-input form-control dropdown-toggle" id="api-dropdown"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" 
+                            daterangepicker [options]="options" (selected)="selectedDate($event, daterange)"
+                            (click)="selectedDate($event, daterange)" />
+                        
+                    </div>
+                    <div class="dropdown-menu" aria-labelledby="api-dropdown">
+                        <!-- Dropdown menu items here -->
+                    </div>
+                </div>
+            </div>
+                        
+
+
+            <div class="daterangepicker ltr show-calendar opensright"
+                style="display: none;">
+            </div>
+
+
+        </div>
+
+        <div class="right-filters">
+            <div>
+                <label for=""></label>
+                <div class="input-group search-field-container">
+
+                    <span class="input-group-text" id="basic-addon1"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search..." aria-label="Username"
+                        aria-describedby="basic-addon1" [(ngModel)]="searchText" (ngModelChange)="getAPIUsage()">
+                </div>
+            </div>
+
+
+            <button class="export-btn btn" (click)="downloadData()">
+                <i class="bi bi-cloud-arrow-down" ></i>
+                Export
+            </button>
+
+        </div>
+
+    </div>
+
+    <app-flex-table class="table-container" [titles]="titles" [datas]="datas"></app-flex-table>
+    <div class="table-footer">
+        <span *ngIf="paginator.has_previous" (click)="onPreviousPageChange()" class="btn">Previous</span>
+        <span class="btn" *ngIf="paginator.has_previous"
+            (click)="onPageChange(paginator.previous_page_number)">{{paginator.previous_page_number}}</span>
+        <span class="btn active">{{currentPage}}</span>
+        <span class="btn" *ngIf="paginator.has_next"
+            (click)="onPageChange(paginator.next_page_number)">{{paginator.next_page_number}}</span>
+        <span *ngIf="paginator.has_next" (click)="onNextPageChange()" class="btn">Next</span>
+    </div>
+</div>

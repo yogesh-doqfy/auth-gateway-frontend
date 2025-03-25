@@ -1,0 +1,265 @@
+
+// @use "igniteui-angular/theming" as *;
+// Uncomment the following lines if you want to add a custom palette:
+// $primary: #731963 !default;
+// $secondary: #ce5712 !default;
+// $app-palette: palette($primary, $secondary, $surface);
+
+/* autoprefixer grid: on */
+
+// @include core();
+// @include typography($font-family: $material-typeface, $type-scale: $material-type-scale);
+// @include theme($default-palette);
+// CSS Reset, comment out if not required or using a different module
+// @import 'minireset.css/minireset';
+@import 'color';
+// @import '../node_modules/bootstrap-icons/font/bootstrap-icons.css';
+/* src/styles.scss */
+// @import "../node_modules/bootstrap/scss/bootstrap";
+@import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~bootstrap-icons/font/bootstrap-icons.css';
+
+@import '~@riapacheco/yutes/main.scss'; // For stripping styles & antialiasing
+@import '~@riapacheco/yutes/seasonal.scss'; // To access dark color palette
+
+
+body{
+    padding: 0;
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    font-style: normal;
+}
+
+app-root{
+    width: 100vw;
+}
+
+.bold{
+    font-weight: bold;
+}
+
+.bolder{
+    font-weight: bolder;
+}
+
+.size-1{
+    font-size: 1rem;
+}
+
+.size-1-2{
+    font-size: 1.2rem;
+}
+
+.size-1-5{
+    font-size: 1.5rem;
+}
+.size-0-8{
+    font-size: 0.8rem;
+}
+
+
+.size-0-6{
+    font-size: 0.6rem;
+}
+
+.font-white{
+    color: $fontWhite;
+}
+
+.font-dark-blue{
+    color: $darkBlue;
+}
+
+.pointer{
+    cursor: pointer;
+}
+
+.btn{
+    border: 1px solid $buttonBorder;
+}
+
+.flex{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bg-blue{
+    background-color: $darkBlue;
+    color: $fontWhite;
+}
+
+.search-field-container{
+    max-width: 200px;
+    margin-right: 1rem;
+    margin-top: auto;
+    span, input{
+        height: 2rem;
+        font-size: 0.8rem;
+    }
+}
+
+
+.export-btn{
+    height: 2rem;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: black;
+    font-size: 0.8rem;
+font-weight: 500;
+border: 1px solid $BorderGrey;
+box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.bi-cloud-arrow-down{
+    padding-right: 0.8rem;
+}
+
+.dummy-card{
+    margin-bottom: 2rem;
+    max-width: 240px;
+    min-width: 240px;
+    height: 280px;
+}
+
+pre{
+    outline: 0px !important;
+    max-height: 300px;
+    overflow-y: scroll;
+
+    }
+
+
+    .max-width-800{
+        max-width: 700px;
+        margin-left: 0rem;
+        justify-content: left;
+
+    }
+    .max-width-900{
+        max-width: 800px;
+        margin-left: 0rem;
+        justify-content: left;
+
+    }
+
+
+    pre {
+        span {white-space: normal;}
+    .string { color: #2CDA00 !important; }
+    .number { color: #2CDA00 !important; }
+    .boolean { color: #2CDA00 !important; }
+    .null { color: #2CDA00 !important; }
+    .key { color: #BE00B7 !important; }
+    }
+
+
+
+    .app-sidebar{
+        padding: 0; margin:0;
+        background-color: $darkBlue;
+    
+    }
+
+  
+    .form-check-input:checked {
+        background-color: #31eb31 !important;
+        border-color: #00ff00 !important;
+      }
+      
+      .form-check-input {
+        border-color: #ff2828 !important;
+        background-color: #ff0000 !important;
+        // background-color: white !important;
+        width: 2.5rem !important;
+        height: 1rem !important;
+        --bs-form-switch-bg:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+      }
+    
+      .form-check{
+        padding-right: 0.8rem !important;
+      }
+    
+
+      .table-footer{
+        padding-bottom: 1rem;
+      }
+
+
+
+
+
+
+      .dropdown-container {
+        position: relative;
+      }
+      
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .clear-button {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 0;
+      }
+      
+      
+      .dropdown .selected {
+        /* Hide the default arrow icon */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      
+        /* Add custom arrow icon */
+        background-image: None;
+        background-repeat: no-repeat;
+        background-position: right center;
+        padding-right: 20px; /* Adjust as needed to make space for the custom arrow */
+      }
+      
+      .dropdown select::-ms-expand {
+        display: none; /* Hide arrow icon in IE */
+      }
+      
+
+      .alert-info{
+        margin: 0.5rem 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+
+      .no-data-found{
+        display: flex;
+        min-height: 50vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        font-size: 1rem;
+        // border: 1px solid;
+        align-items: center;
+      }
+
+
+      @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+      }
+
+      .run-btn{
+        padding: 5px 10px;
+        animation: blink 1s infinite;
+      }

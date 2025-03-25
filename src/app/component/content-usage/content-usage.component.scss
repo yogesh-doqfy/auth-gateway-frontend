@@ -1,0 +1,148 @@
+@import '../../../color.scss';
+
+.dropdown-container{
+    display: flex;
+    flex-direction: column;
+    // max-width: 120px;
+    margin-right: 1rem;
+
+}
+
+.dropdown-container label{
+    font-weight: 500;
+    font-size: 0.8rem;
+    padding-bottom: 5px;
+}
+
+.dropdown-container select{
+    color: $fontBlack;
+    font-size: 0.8rem;
+  line-height: 1rem;
+  height: 1.8rem;
+  background-color: transparent;
+  // border: 1px solid $BorderGrey;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  border-radius: 7px;
+  min-width: 150px;
+  padding: 5px;
+
+}
+
+.search-container{
+    padding: 1rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-left: 3rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    max-width: 95%;
+    padding-left: 0;
+    // width: ;
+}
+
+
+.left-filters{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.right-filters{
+    // max-width: 200px;
+    display: flex;
+    flex-wrap: wrap;
+    height: 1.5rem;
+}
+
+.search-field-container{
+    max-width: 200px;
+    margin-right: 1rem;
+}
+
+
+.table-footer{
+    display: flex;
+    justify-content: center;
+    font-size: 0.8rem;
+    align-items: center;
+}
+
+.table-footer span{
+    padding: 0.5rem 1rem;
+    color: $fontGrey;
+
+}
+
+.table-footer .btn{
+    display: flex;
+    align-items: center;
+    height: 1.5rem;
+    font-size: 0.8rem;
+    border: none;
+    background-color: $fontGrey;
+    color: black;
+    margin: 0 0.5rem;
+}
+
+.table-footer .active{
+    background-color: $darkBlue;
+    color: $fontWhite;
+}
+
+.table-container{
+    min-height: 60vh;
+    display: block;
+    // width: 98%;
+    margin-left: 2rem;
+    max-width: 95%;
+    margin-bottom: 2rem;
+}
+
+.date-input{
+    font-size: 0.8rem;
+}
+
+
+
+.dropdown-toggle {
+    cursor: pointer;
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    // background-color: #fff;
+    color: $fontBlack;
+    padding: 5px 0;
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+.date-input{
+    max-width: 100px;
+    line-height: 1rem;
+    border: none;
+ 
+}
+
+.calendar-container{
+    padding: 3px 5px;
+    // border-radius: 8px 0 0 8px;
+    
+}
+
+.bi-calendar-date-fill{
+    color: $fontBlack;
+}
+
+.date-group{
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 8px;
+    padding-right: 5px;
+    padding-left: 3px;
+}

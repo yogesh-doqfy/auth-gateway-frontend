@@ -1,0 +1,170 @@
+<div class="workflow-api-container">
+    <div class="max-width-800">
+
+    <div class="wf-api-header">
+        <div class="container-title">
+            {{api.name}}
+        </div>
+
+    </div>
+
+    <div class="sm-container">
+        <div class="sm-container-title">
+            METHOD
+        </div>
+        <div class="sm-container-content">
+            <div class="method-blue-btn">
+                {{api.method}}
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="sm-container">
+        <div class="sm-container-title">
+            URL
+        </div>
+        <div class="sm-container-content url-content">
+            {{api.URL}}
+        </div>
+    </div>
+
+
+    <div class="sm-container">
+        <div class="sm-container-title">
+            BODY PARAMS
+        </div>
+        <div class="sm-container-content">
+            <div class="params-container">
+                <div class="params" *ngFor="let param of api.params; let last = last" [ngClass]="{ 'last-param': last }">
+                    <div class="params-header">
+
+                        <div class="header-label">
+                            <div class="param-name">{{param.name}}</div>
+                            <div class="param-type">
+                                {{param.type}}
+                            </div>
+                            <div class="param-required">
+                                <!-- {{param.required}} -->
+                                required
+                            </div>
+                        </div>
+                        <div class="header-value">
+                            <input type="text" class="params-input" [(ngModel)]="param.value" (input)="updatePayload(param)" [placeholder]="getPlaceHolder(param)">
+                        </div>
+                    </div>
+                    <div class="param-detail">
+                        {{param.label}}
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="sm-container">
+        <div class="sm-container-title">
+            BODY PARAMS
+        </div>
+        <div class="sm-container-content">
+            <div class="params-container">
+                <div class="params" *ngFor="let header of api.headers; let last=last" [ngClass]="{ 'last-param': last }">
+                    <div class="params-header">
+
+                        <div class="header-label">
+                            <div class="param-name">{{header.name}}</div>
+                            <div class="param-type">
+                                {{header.type}}
+                            </div>
+
+                        </div>
+                        <div class="header-value">
+                            <input type="text" class="params-input" name="" id="" [value]="header.value">
+                        </div>
+                    </div>
+                    <div class="param-detail">
+                        {{header.value}}
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<!-- <div class="sm-container">
+    <div class="sm-container-content">
+        <div class="params-container">
+            <div class="params" *ngFor="let param of api.response_details; let last = last" [ngClass]="{ 'last-param': last }">
+                <div class="params-header" *ngIf="param.value">
+
+                    <div class="header-label">
+                        <div class="param-name">{{param.label}}</div>
+                    </div>
+                    <div class="header-value">
+                        <input type="text" class="params-input" [(ngModel)]="param.value" (input)="updatePayload(param)">
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div> -->
+
+
+    <div class="sm-container">
+        <div class="sm-container-title">
+            RESPONSES
+        </div>
+        <div class="sm-container-content">
+            <div class="params-container pre-statu-code-container">
+                <div class="status-code-container" *ngFor="let status of api.status">
+                    <div [ngClass]="{
+                        'status-code-success-color': isSuccessStatusCode(status.code),
+                        'status-code-danger-color': !isSuccessStatusCode(status.code)
+                    }">
+                    </div>
+                    <div class="status-code">
+                        {{status.code}}
+                    </div>
+                    <div class="status-code-message">
+                        {{status.message}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<div class="body-container">
+    <div class="header">
+        Request Body
+    </div>
+
+        <app-json-viewer [json]="api.payload" ></app-json-viewer>
+</div>
+
+
+<div class="execute-btn-container" *ngIf="execute">
+    <button type="button" class="execute-api" id="executeBtn" (click)="callPostAPI(api)" [ngClass]="{disable: !execute}" [class.btn-clicked]="isButtonClicked" (click)="simulateButtonClick()">{{executionBtnText}}</button>
+</div>
+
+
+<div class="body-container" *ngIf="execute" id="responseContainer">
+    <div class="header">
+        Response Type
+    </div>
+
+        <app-json-viewer [json]="api.response" ></app-json-viewer>
+</div>
+
+</div>
+
+</div>

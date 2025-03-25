@@ -1,0 +1,113 @@
+<div class="sidebar-flex" [ngClass]="{'close-flex': !sidebar}">
+
+<div class="sidebar" *ngIf="sidebar">
+    <div class="logo-container size-1 bold">
+        <img src="/favicon.ico" alt="" class="dashboard-logo">
+        <span>DOQFY</span>
+    </div>
+
+    <div class="options-container">
+        <div class="sb-option" (click)="setActive('dashboard')" [class.active]="isActive('dashboard')">
+            <i class="bi bi-pie-chart-fill"></i>
+            <span>Dashboard</span>
+        </div>
+        <div class="sb-option" (click)="setActive('api-lib')" [class.active]="isActive('api-lib')">
+            <i class="bi bi-collection-fill"></i>
+            <span>API Library</span>
+        </div>
+
+        <div class="sb-option" (click)="setActive('pricing')" [class.active]="isActive('pricing')">
+            <i class="bi bi-person-fill"></i>
+            <span>Pricing and Credits</span>
+        </div>
+
+        <div class="sb-option" *ngIf="isAdmin" (click)="setActive('admin-user')" [class.active]="isActive('admin-user')">
+            <i class="bi bi-lightbulb-fill"></i>
+            <span>Customer List</span>
+        </div>
+
+
+        <div class="sb-option" (click)="setActive('my-apis')" [class.active]="isActive('my-apis')">
+            <i class="bi bi-people-fill"></i>
+            <span>My APIs</span>
+        </div>
+
+
+
+        <div class="sb-option" *ngIf="!isAdmin" (click)="setActive('usage')" [class.active]="isActive('usage')">
+            <i class="bi bi-lightbulb-fill"></i>
+            <span>Usage details</span>
+        </div>
+
+
+        <div class="sb-option" (click)="setActive('keys')" [class.active]="isActive('keys')">
+            <i class="bi bi-key-fill"></i>
+            <span>API Keys</span>
+        </div>
+
+
+
+        
+        <div class="sb-option " (click)="toggleOpenworkFlow()" [class.active]="isActive('workflow') || isActive('workflow-repository')">
+            <div class="workflow-dropdown">
+                
+                <i class="bi bi-gear-wide-connected"></i>
+                <span>Workflow</span>
+            </div>
+
+            <i class="bi bi-caret-up-fill" *ngIf="openWorkFlow"></i>
+            <i class="bi bi-caret-down-fill" *ngIf="!openWorkFlow"></i>
+        </div>            
+
+        <div class="sb-option sub-option" (click)="setActive('workflow')" [class.active]="isActive('workflow')" *ngIf="openWorkFlow">
+            <i class="bi bi-gear-wide-connected"></i>
+            <span>My Workflow</span>
+        </div>            
+
+        <div class="sb-option sub-option" (click)="setActive('workflow-repository')" [class.active]="isActive('workflow-repository')" *ngIf="openWorkFlow">
+            <i class="bi bi-gear-wide-connected"></i>
+            <span>Workflow Repository</span>
+        </div>            
+
+
+
+        <div class="sb-option " (click)="toggleOpenHistory()" [class.active]="isActive('history-workflow') || isActive('history-api')">
+            <div class="workflow-dropdown">
+                
+                <i class="bi bi-card-list"></i>
+                <span>History</span>
+            </div>
+
+            <i class="bi bi-caret-up-fill" *ngIf="openHistory"></i>
+            <i class="bi bi-caret-down-fill" *ngIf="!openHistory"></i>
+        </div>            
+
+        <div class="sb-option sub-option" (click)="setActive('history-api')" [class.active]="isActive('history-api')" *ngIf="openHistory">
+            <i class="bi bi-card-list"></i>
+            <span>API</span>
+        </div>            
+
+        <div class="sb-option sub-option" (click)="setActive('history-workflow')" [class.active]="isActive('history-workflow')" *ngIf="openHistory">
+            <i class="bi bi-card-list"></i>
+            <span>Workflow</span>
+        </div>            
+
+
+
+        <div class="sb-option" (click)="setActive('help')" [class.active]="isActive('help')">
+            <i class="bi bi-question-circle-fill"></i>
+            <span>Help & Support</span>
+        </div>
+
+
+    </div>
+</div>
+<div class="sidebar-icon-container">
+    <i class="bi bi-list" *ngIf="!sidebar" (click)="toggleSidebar()" ></i>
+    <i class="bi bi-x" *ngIf="sidebar" (click)="toggleSidebar()" ></i>
+
+</div>
+
+</div>
+
+<!-- <div class="overlay"></div> -->

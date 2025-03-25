@@ -1,0 +1,95 @@
+@import '../../../color.scss';
+
+.help-container{
+    padding: 1rem;
+    margin: 2rem;
+    max-width: 1050px;
+}
+
+.title{
+    font-weight: 500;
+    font-size: 1.2rem;
+    padding-bottom: 2rem;
+}
+
+.ticket-container{
+    // border: 1px solid $BorderGrey;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    margin-right: 5rem;
+    // padding-right: 3rem;
+    margin-bottom: 3rem;
+    max-width: 1000px;
+}
+
+.ticket-container-container{
+    max-width: 900px;
+}
+
+
+.input-container{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    // max-width: 150px;
+}
+
+.input-container .input-field{
+    max-width: 200px;
+}
+
+.ticket-container label{
+    font-size: 0.8rem;
+    padding-bottom: 5px;
+    font-weight: 500;
+}
+
+.input-row{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.input-field{
+    border-radius: 8px;
+    border: 1px solid $BorderGrey;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.upload-container{
+    height: 5rem;
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid $BorderGrey;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    border-radius: 7px;
+}
+
+.upload-container i{
+    font-size: 2rem;
+}
+
+.remark-input{
+    // max-width: 60%;
+    width: 500px;
+    max-width: 500px !important;
+}
+
+.send{
+    // height: 2rem;
+    background: $darkBlue;
+    color: $fontWhite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    font-size: 0.8rem;
+    padding: 10px 2rem;
+    font-weight: 500;
+    
+}

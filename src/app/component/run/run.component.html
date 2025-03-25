@@ -1,0 +1,99 @@
+<div class="workflow-api-container">
+    <div class="max-width-800 non-developer-container" >
+        <div class="form-container">
+
+            <!-- <div class="card" *ngFor="let page of pages"> -->
+
+            <div class="params-container" *ngIf="!executed">
+
+<div class="api-card-title">
+    PLEASE ENTER YOUR "{{api.name.toUpperCase()}}" DETAILS
+</div>
+
+                <div class="params" *ngFor="let param of api.params; let last = last"
+                    [ngClass]="{ 'last-param': last }">
+                    <div class="form-label" [class.active]="param.value || param.value === 0">
+                        <label for="param_{{param.id}}" class="param-label">{{param.label | uppercase}}</label>
+                    </div>
+                    <div class="form-value">
+                        <!-- <div class="upload-container" *ngIf="param.type=='base64'">
+                            <input type="file" (change)="handleFileInput($event, param)" class="upload-btn" [id]="'uploadBtn'+param.name" style="display: none;">
+
+                            <label [for]="'uploadBtn'+param.name" class="upload-btn">
+                                <span *ngIf="!uploadFileName[param.name]">
+                                    Choose File
+                                </span>
+
+                                <span *ngIf="uploadFileName[param.name]">
+                                    {{uploadFileName[param.name]}}
+                                </span>
+
+                            </label>
+                        </div> -->
+
+                        <div class="upload-container" *ngIf="param.type=='base64'">
+                            <input type="file" (change)="handleFileInput($event, param)" class="upload-btn" [id]="'uploadBtn'+param.name" style="display: none;">
+
+                            <div class="input-file-text">
+                                <label [for]="'uploadBtn'+param.name" class="upload-btn">
+                                    Choose File
+                                </label>
+                                <input type="text" class="file-name" placeholder="face.html" [(ngModel)]="uploadFileName[param.name]">
+
+                            </div>
+
+                        </div>
+
+
+                        <input type="text" id="param_{{param.id}}" class="params-input" [(ngModel)]="param.value"
+                            (input)="updatePayload(param)" [placeholder]="getPlaceHolder(param)" *ngIf="param.type!='base64'">
+                    </div>
+                </div>
+            </div>
+
+            <!-- </div> -->
+
+
+            <div class="params-container" *ngIf="executed">
+                <div class="params" *ngFor="let param of responseDetail; let last = last"
+                    [ngClass]="{ 'last-param': last }">
+                    <div class="form-label" [class.active]="param.value || param.value === 0">
+                        <label for="param_{{param.id}}" class="param-label">{{param.label | uppercase}}</label>
+                    </div>
+                    <div class="form-value">
+
+                        <!-- <img [src]="'data:image/png;base64,'+param.value" alt="" *ngIf="param.type=='base64'" class="base-image"> -->
+                        <img [src]="param.value" alt="" *ngIf="param.type=='base64'" class="base-image">
+
+                        <input type="text" id="param_{{param.id}}" class="params-input" [(ngModel)]="param.value" (input)="updatePayload(param)" readonly *ngIf="param.type!='base64'">
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="execute-btn-container" *ngIf="execute">
+
+                <button type="button" class="execute-api" id="executeBtn" (click)="callPostAPI(api)"
+                    [ngClass]="{disable: !execute || !api.is_subscribed}" [class.btn-clicked]="isButtonClicked"
+                    (click)="simulateButtonClick()" *ngIf="!executed && api.is_subscribed"
+                    [disabled]="!api.is_subscribed">{{executionBtnText}} </button>
+
+                <button type="button" class="execute-api" id="executeBtn" (click)="getMessage()"
+                    [ngClass]="{disable: !execute}" [class.btn-clicked]="isButtonClicked"
+                    (click)="simulateButtonClick()" *ngIf="!executed && !api.is_subscribed"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exampleModal"
+                    >Subscribe API </button>
+                    <!-- data-bs-toggle="modal" data-bs-target="#subscribeModal" -->
+
+                <button type="button" class="execute-api" (click)="toggleExecuted()" *ngIf="executed">Back</button>
+            </div>
+
+        </div>
+        <div class="image-container">
+
+        </div>
+
+    </div>
+

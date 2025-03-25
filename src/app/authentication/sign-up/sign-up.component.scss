@@ -1,0 +1,170 @@
+@import '../../../color.scss';
+
+.login-page{
+        background: linear-gradient(to bottom, $darkBlue  60%, $backgroundWhite  40%);
+        height: 100vh;
+        // width: 100vw;
+}
+
+.main-container{
+        display: flex;
+        padding: 0 2rem;
+}
+
+
+.left-container{
+        width: 60%;
+
+}
+.left-container .left-upper-container{
+        display: flex;
+        justify-content: center;
+}
+
+.left-container .left-upper-container .text-container{
+        
+        max-width: 300px;
+}
+
+.login-rocket-image{
+        max-width: 300px;
+}
+
+.login-container{
+        background-color: $fontWhite;
+        border-radius: 10px;
+        min-width: 300px;
+        min-height: 450px;
+        padding: 2rem 1.5rem;
+        max-width: 380px;
+        margin-top: 1rem;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+
+.header-flex{
+        display: flex;
+        justify-content: space-between;
+}
+
+.header-flex p{
+        padding: 0 !important;
+        line-height: 1.5rem;
+        margin: 0;
+}
+
+.sign-up-container{
+        max-height: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+}
+
+.login-options{
+        display: flex;
+        width: 100%;
+        justify-content: right;
+}
+
+.login-title{
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+}
+
+.option{
+        background-color: $BGLightBlue;
+        color: $FontLightBlue;
+        padding: 2px;
+        margin-left: 1rem;
+        display: flex;
+        align-items: center;
+        border-radius: 10px;
+}
+
+.form-field-container{
+        margin-top: 1.5rem;
+}
+
+.input{
+        // height: 2rem;
+        width: 90%;
+        border: 1px solid $BorderGrey;
+        border-radius: 7px;
+        padding: 5px 1rem;
+        margin-top: 0.7rem;
+}
+
+.input-field{
+        margin-top: 1.5rem;
+}
+
+.input-btn{
+        width: 100%;
+        background-color: $darkBlue;
+        border-radius: 7px;
+        padding: 1rem;
+        margin-top: 2rem;
+        color: $fontWhite;
+}
+
+.forgot-password{
+        display: flex;
+        justify-content: right;
+
+}
+
+.forgot-password a{
+        font-size: 0.6rem;
+        color: $FontLightBlue;
+        padding-right: 5px;
+        padding-top: 2px;
+        // text-decoration: underline;
+}
+
+.flex-field-container{
+    display: flex;
+    margin-top: 2rem;
+    justify-content: space-between;
+}
+
+
+.input-field-half {
+    width: 50%;
+    }
+    
+    .input-field-half .input {
+        width: 80%;
+        border: 1px solid $BorderGrey;
+        border-radius: 7px;
+        // padding: 1rem;
+        margin-top: 0.7rem;
+}
+
+
+.error-message{
+        color: tomato;
+
+        font-size: 0.6rem;
+}
+
+.sign-up-btn{
+        background-color: $darkBlue;
+        padding: 2px 5px;
+        color: $fontWhite;
+        // display: flex;
+        text-align: center;
+        font-weight: 500;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        
+}
+
+.sign-up-btn:hover{
+        text-decoration: underline;
+}
+
+.account-question{
+        font-weight: 500;
+        font-size: 0.6rem;
+}

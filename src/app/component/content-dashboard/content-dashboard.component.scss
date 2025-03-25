@@ -1,0 +1,354 @@
+@import '../../../color.scss';
+
+.profile-container {
+    // min-height: 150px;
+    background: linear-gradient(98.5deg, $darkBlue 53.12%, $backgroundWhite 155.43%);
+    margin: 1rem 2rem;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    color: $fontWhite;
+    border-radius: 15px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    margin-bottom: 2rem;
+}
+
+.content {
+    justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+}
+
+.content .date {
+    margin-bottom: 2rem;
+    color: $fontGrey;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.content .grey-content {
+    color: $fontGrey;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.user-image {
+    border-radius: 10px;
+}
+
+
+.analytics-container {
+    margin-top: 1rem;
+    margin-left: 3rem;
+    padding-left: 1rem;
+}
+
+.tab-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 500px;
+    // background-color: $chartLightBlue;
+    // background-color: $BGLightBlue;
+    background-color: #CFDBF2;
+    border-radius: 7px;
+    // height: 2rem;
+    margin: auto;
+    padding: 5px;
+    margin-bottom: 1rem;
+}
+
+.tab {
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    color: $fontGrey;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    width: -moz-available;
+    display: flex;
+    justify-content: center;
+}
+
+.active {
+    background-color: $fontWhite;
+    color: $darkBlue;
+}
+
+.dounut-container {
+    padding: 0.5rem 1rem;
+    background-image: url('/assets/IMG/count-card.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin: 0.5rem;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding-bottom: 0;
+}
+
+.credits-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $fontDarkGrey;
+}
+
+.credits-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.recharge-container,
+.recharge-history-container {
+    padding: 1rem;
+    border: 1.5px solid $darkBlue;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 120px;
+    margin: 0.5rem;
+
+}
+
+.recharge-history-container {
+    height: max-content;
+    justify-content: left;
+    align-items: baseline;
+    padding: 1rem 0.5rem !important;
+    min-width: 250px;
+}
+
+.view-history-btn {
+    border-radius: 20px !important;
+    padding: 0.3rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    display: flex;
+    align-items: center;
+}
+
+.history {
+    padding: 1rem;
+    border: 1px solid $darkBlue;
+    border-radius: 10px;
+    min-width: 200px;
+    font-weight: bold;
+    font-size: 0.7rem;
+    color: $fontWhite;
+}
+
+.history-data i {
+    width: 15%;
+}
+
+.history-data .history-title {
+    width: 35%;
+}
+
+.history-data .history-value {
+    width: 50%;
+}
+
+.mt-3rem {
+    margin-top: 2rem;
+}
+
+.recharge-content {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: $fontDarkGrey;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.pay-now-btn {
+    margin: auto 1rem;
+    background-color: $darkBlue;
+    color: $fontWhite;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.count-container {
+    border-radius: 10px;
+    border: 1px solid $darkBlue;
+    padding: 1rem;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    // margin-bottom: 1rem;
+}
+
+.count-value {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin: auto;
+    text-align: center;
+    cursor: pointer;
+}
+
+.first-analytics-row {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    // padding-right: 5rem;
+    width: 95%;
+    // border: 2px solid black;
+}
+
+.workflows {
+    padding: 1rem;
+    // min-width: 200px;
+    font-size: 0.7rem;
+    border: 1px solid $darkBlue;
+    border-radius: 10px;
+    margin-right: 1rem;
+    min-width: 45%;
+    min-height: 250px;
+    max-height: 250px;
+    margin-top: 2rem;
+}
+
+.workflow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.workflow i {
+    width: 10%;
+    color: $darkBlue;
+    font-size: 1rem;
+    font-weight: bolder;
+}
+
+.workflow .workflow-header{
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.workflow .api-name {
+    // width: 50%;
+    color: $fontDarkGrey;
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    // display: flex;
+    // align-self: center;
+    // align-items: center;
+
+}
+
+.workflow .workflow-credits {
+    // width: 40%;
+    align-items: center;
+    background-color: #31eb31;
+    color: $fontWhite;
+    padding: 2px 5px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    font-weight: 600;
+    width: 80px;
+    margin-right: 0.5rem;
+    // border: 1px solid #1afd1a ;
+}
+
+.workflow-title {
+    border-bottom: 1px solid $BorderGrey;
+    line-height: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: $fontDarkGrey;
+    font-weight: 700;
+}
+
+.second-analytics-row {
+    // margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    width: 95%;
+}
+
+
+
+.line-chart-container {
+    border: 1.5px solid $darkBlue;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: auto 1rem;
+    // box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    min-width: 45%;
+    min-height: 250px;
+    max-height: 250px;
+    margin-top: 2rem;
+}
+
+.line-chart-header{
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid $BorderGrey;
+    line-height: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.line-title{
+    font-size: 0.9rem;
+    color: $fontDarkGrey;
+    font-weight: 700;
+}
+
+.workflow .api-name{
+    cursor: pointer;
+  }
+  
+  .workflow .api-name:hover{
+    text-decoration: underline;
+  }
+  
+//   .vw-50{
+//     width: 47%;
+//     display: flex;
+//     justify-content: space-around;
+//     flex-wrap: wrap;
+
+//   }
+
+
+.blue-btn{
+    border: 1px solid $BorderGrey;
+    background-color: $darkBlue;
+    color: $fontWhite;
+    font-weight: 500;
+    font-size: 0.8rem;
+    border-radius: 10px;
+  }
+
+
+  #paymentModal .form-group{
+    margin-bottom: 1rem;
+  }

@@ -1,0 +1,23 @@
+<div class="dashboard-page page">
+    <app-sidebar class="app-sidebar"></app-sidebar>
+
+    <div class="main-container" id="main-container">
+        <app-dashboard-nav [navTitle]="navTitle" [userDetails]="userDetails"></app-dashboard-nav>
+
+
+        <app-content-dashboard *ngIf="isActive('dashboard') && !isAdmin"></app-content-dashboard>
+        <app-admin-dashboard *ngIf="isActive('dashboard') && isAdmin"></app-admin-dashboard>
+        <app-content-api-lib *ngIf="isActive('api-lib')"></app-content-api-lib>
+        <app-content-usage *ngIf="isActive('usage')"></app-content-usage>
+        <app-content-my-apis *ngIf="isActive('my-apis')"></app-content-my-apis>
+        <app-content-pricing *ngIf="isActive('pricing')"></app-content-pricing>
+        <app-content-api-keys *ngIf="isActive('keys')"></app-content-api-keys>
+        <app-content-help *ngIf="isActive('help')"></app-content-help>
+        <app-content-workflow *ngIf="isActive('workflow')"></app-content-workflow>
+        <app-customer-list *ngIf="isActive('admin-user')"></app-customer-list>
+        <app-content-recom-workflow *ngIf="isActive('workflow-repository')"></app-content-recom-workflow>
+        <app-history *ngIf="isActive('history-api')"></app-history>
+        <app-history *ngIf="isActive('history-workflow')"></app-history>
+        <app-transaction-history *ngIf="isActive('transaction-history')" ></app-transaction-history>
+    </div>
+</div>

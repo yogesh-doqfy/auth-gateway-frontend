@@ -1,0 +1,47 @@
+<div class="workflow-card" >
+    <div class="card-title" (click)="goToWorkflowDetail(workflow.id)" >{{workflow.name}} </div>
+    <div class="card-content">
+        {{ workflow.description | truncate: 180 }}
+    </div>
+
+
+    <div class="card-flex">
+
+        <div class="form-check form-switch">
+            <input class="form-check-input"
+                   type="checkbox"
+                   id="flexSwitchCheckChecked{{ workflow.id }}"
+                   [checked]="isChecked"
+                   data-bs-toggle="modal"
+                   [attr.data-bs-target]="'#exampleModal' + workflow.id"
+                   (click)="getMessage()"
+                   [(ngModel)]="isChecked" [disabled]="workflow.private">
+          </div>
+      <div class="credits">
+        {{workflow.credits}} credits
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  <!-- Modal -->
+  <div class="modal fade" [id]="'exampleModal' + workflow.id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Workflow Subscribe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          {{ message }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="closeModal()">Close</button>
+          <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="onSwitchChange(workflow.id, index, $event)">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

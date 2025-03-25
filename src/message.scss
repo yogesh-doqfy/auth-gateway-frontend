@@ -1,0 +1,18 @@
+.message-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.message-item span {
+    margin-right: 10px;
+}
+
+.message-item i {
+    color: green; /* Color of the check mark */
+}
+
+
+// .show{
+//     display: block !important;
+// }

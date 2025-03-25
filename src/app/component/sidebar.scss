@@ -1,0 +1,47 @@
+@import '../../color.scss';
+
+
+.sidebar{
+    background-color: $darkBlue;
+    color: $fontGrey;
+    min-height: 100vh;
+    min-width: 220px;
+    // z-index: 1000; /* Ensure sidebar is on top of other content */
+    transition: left 0.3s ease;
+}
+
+.active{
+    color: $fontWhite;
+    border-left: 2px solid $fontWhite;
+}
+
+.sidebar .sb-option{
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar .sb-option span{
+    cursor: pointer;
+}
+
+.sidebar-flex{
+    display: flex;
+}
+
+@media (max-width:500px) {
+    .sidebar-flex{
+        width: 100%;
+        background-color: $darkBlue;
+    }
+    .sidebar{
+        width: 100% !important;
+    }
+    // .close-flex{
+    //     width: 2rem !important;
+    // }
+    .sidebar-icon-container{
+        padding: 1rem 1.5rem;
+    }
+}
+
+

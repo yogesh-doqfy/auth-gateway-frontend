@@ -1,0 +1,71 @@
+@import '../../../color.scss';
+
+.dropdown-container{
+    display: flex;
+    flex-direction: column;
+    // max-width: 120px;
+    margin-right: 1rem;
+
+}
+
+.dropdown-container label{
+    font-weight: 500;
+    font-size: 0.8rem;
+    padding-bottom: 5px;
+}
+
+.dropdown-container select{
+    color: $fontBlack;
+    font-size: 0.8rem;
+  line-height: 1rem;
+  height: 1.8rem;
+  background-color: transparent;
+  // border: 1px solid $BorderGrey;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  border-radius: 7px;
+  min-width: 150px;
+  padding: 5px;
+
+}
+
+.search-container{
+    padding: 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    max-width: 95%;
+    // width: 1100px;
+    // padding-bottom: 1rem;
+    margin: auto;
+}
+
+
+.left-filters{
+    display: flex;
+    margin: auto 1rem;
+}
+
+.right-filter{
+    max-width: 200px;
+}
+
+
+.api-container{
+    margin: auto;
+    margin-top: 3rem auto;
+    max-width: 95%;
+      display: flex;
+      justify-content:space-between;
+      flex-wrap: wrap;
+      overflow-x: hidden;
+      padding: 1rem;
+      
+    }
+
+
+    .container-title{
+        font-size: 1rem;
+        font-weight: 500;
+        padding-top: 1.5rem;
+        text-decoration: underline;
+
+    }

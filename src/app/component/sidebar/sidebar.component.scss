@@ -1,0 +1,69 @@
+@import "/src/color.scss";
+
+.logo-container{
+    display: flex;
+    align-items: center;
+    // font-weight: bold;
+    margin-top: 1rem;
+}
+
+.dashboard-logo{
+    margin: 0.5rem 1rem;
+    height: 2rem;
+}
+
+
+.options-container{
+    margin-top: 2rem;
+}
+
+.sb-option{
+    padding:0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    padding-right: 0.5rem;
+}
+.sb-option span{
+    margin-left: 1rem;
+}
+
+.sidebar-icon-container .bi{
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 500;
+
+}
+
+.sidebar-icon-container{
+    background-color: $darkBlue;
+    padding: 2rem;
+    border-radius: 50%;
+    height: 1rem;
+    width: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 0;
+
+}
+
+
+.sub-option{
+    padding: 0;
+    padding-left: 2rem;
+    font-size: 0.8rem;
+}
+
+.workflow-dropdown{
+    // display: flex;
+    // justify-content: space-between;
+    // padding-right: 1rem;
+    padding-right: 3rem;
+}
+
+
+.bi-caret-up-fill, .bi-caret-down-fill{
+    font-size: 0.9rem;
+    display: flex;
+    align-self: end;
+}

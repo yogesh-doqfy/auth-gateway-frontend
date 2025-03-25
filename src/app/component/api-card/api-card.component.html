@@ -1,0 +1,56 @@
+<app-message-modal [messages]="messages"></app-message-modal>
+
+
+<div class="api-card size-0-8">
+  <!-- (click)="goToAPIDetail(api.id)" -->
+  <img [src]="api.image" [alt]="api.name" class="api-image" (click)="goToAPIDetail(api.id)">
+
+  <div class="card-content-container">
+    <div class="api-content">
+      {{ api.description | truncate: 180 }}
+    </div>
+    <div class="api-footer">
+      <div class="left-content">
+        <div class="api-title bold size-0-8" (click)="goToAPIDetail(api.id)">
+          {{ api.api_name }}
+        </div>
+      </div>
+      <div class="form-check form-switch">
+        <div class="spinner-border" role="status" *ngIf="isLoader">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <input class="form-check-input"
+               type="checkbox"
+               id="flexSwitchCheckChecked{{ api.id }}"
+               [checked]="api.is_subscribed"
+               data-bs-toggle="modal"
+               [attr.data-bs-target]="'#exampleModal' + api.id"
+               (click)="getMessage()"
+               [(ngModel)]="api.is_subscribed" *ngIf="!isLoader">
+               <!-- {{api.is_subscribed}} -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" [id]="'exampleModal' + api.id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">APIs Subscribe</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        {{ message }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="closeModal()">Close</button>
+        <!-- <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="onSwitchChange(api.id, index, $event)">Save changes</button> -->
+        <button type="button" class="btn blue-btn" data-bs-dismiss="modal" (click)="handleSwitchChange(api.id, index)">Save changes</button>
+
+      </div>
+    </div>
+  </div>
+</div>

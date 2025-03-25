@@ -1,0 +1,54 @@
+<div class="workflow-api-container">
+    <div class="max-width-800">
+        <div class="form-container">
+            <div class="params-container" *ngIf="!executed">
+                <div class="params" *ngFor="let param of api.params; let last = last"
+                    [ngClass]="{ 'last-param': last }">
+                    <div class="form-label" [class.active]="param.value || param.value === 0">
+                        <label for="param_{{param.id}}" class="param-label">{{param.label | uppercase}}</label>
+                    </div>
+                    <div class="form-value">
+                        <input type="text" id="param_{{param.id}}" class="params-input" [(ngModel)]="param.value" (input)="updatePayload(param)" [placeholder]="getPlaceHolder(param)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="params-container" *ngIf="executed">
+                <div class="params" *ngFor="let param of responseDetail; let last = last"
+                    [ngClass]="{ 'last-param': last }">
+                    <div class="form-label" [class.active]="param.value || param.value === 0">
+                        <label for="param_{{param.id}}" class="param-label">{{param.label | uppercase}}</label>
+                    </div>
+                    <div class="form-value">
+                        <input type="text" id="param_{{param.id}}" class="params-input" [(ngModel)]="param.value" (input)="updatePayload(param)" readonly>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="execute-btn-container" *ngIf="execute">
+                <button type="button" class="execute-api" id="executeBtn" (click)="callPostAPI(api)"
+                    [ngClass]="{disable: !execute}" [class.btn-clicked]="isButtonClicked"
+                    (click)="simulateButtonClick()" *ngIf="!executed" >{{executionBtnText}}</button>
+
+                    <button type="button" class="execute-api" (click)="toggleExecuted()" *ngIf="executed" >Back</button>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+        <div class="image-container">
+
+        </div>
+
+    </div>
