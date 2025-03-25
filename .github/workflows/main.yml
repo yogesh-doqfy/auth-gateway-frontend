@@ -23,7 +23,12 @@ jobs:
         id: get_version_branch
         run: |
           echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
-          echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr -d '\n')" >> $GITHUB_ENV
+
+      - name: Debug Version and Branch
+        run: |
+          echo "Extracted Version: $VERSION"
+          echo "Extracted Branch: $BRANCH"
 
       - name: Build Docker Image
         run: |
@@ -35,6 +40,7 @@ jobs:
 
       - name: Copy Build Artifacts from Container
         run: |
+          mkdir -p ./dist/auth-portal  # Ensure directory exists before copying
           docker cp angular-container:/usr/share/nginx/html/auth-portal ./dist/auth-portal
 
       - name: Stop and Remove Container
@@ -42,11 +48,16 @@ jobs:
           docker stop angular-container
           docker rm angular-container
 
+      - name: Verify Build Artifacts
+        run: |
+          ls -lah ./dist/auth-portal  # Check if files are copied correctly
+
       - name: Zip Build Artifacts
         run: |
           cd ./dist
           zip -r "latest-${BRANCH}.zip" auth-portal
           zip -r "v${VERSION}-${BRANCH}.zip" auth-portal
+          ls -lah  # Verify if zip files are created
 
       # Authenticate with Google Cloud
       - name: Authenticate with Google Cloud
@@ -54,17 +65,29 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
+      # Verify if files exist before uploading
+      - name: Check for zip files before upload
+        run: |
+          if [ ! -f "./dist/latest-${BRANCH}.zip" ]; then
+            echo "Error: ./dist/latest-${BRANCH}.zip not found!"
+            exit 1
+          fi
+          if [ ! -f "./dist/v${VERSION}-${BRANCH}.zip" ]; then
+            echo "Error: ./dist/v${VERSION}-${BRANCH}.zip not found!"
+            exit 1
+          fi
+
       # Upload zip files to Google Cloud Storage
       - name: Upload Zip Files to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: ./dist/latest-${BRANCH}.zip
+          path: ./dist/latest-${{ env.BRANCH }}.zip
           destination: doqfy-auth-gateway-fronend-dist
           gzip: false
 
       - name: Upload Versioned Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: ./dist/v${VERSION}-${BRANCH}.zip
+          path: ./dist/v${{ env.VERSION }}-${{ env.BRANCH }}.zip
           destination: doqfy-auth-gateway-fronend-dist
           gzip: false
