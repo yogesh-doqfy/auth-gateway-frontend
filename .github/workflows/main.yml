@@ -1,9 +1,9 @@
-name: Build and Upload Angular to S3
+name: Build and Deploy Angular App
 
 on:
   push:
     branches:
-      - main  # Change this based on your branch
+      - main
 
 jobs:
   build:
@@ -17,25 +17,37 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install Dependencies (Fix Conflicts)
+        run: |
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
+          npm ci --cache .npm --prefer-offline --legacy-peer-deps || npm install --legacy-peer-deps
 
       - name: Build Angular App
-        run: npm run build --prod
+        run: npm run build
 
-      - name: Zip the Build Folder
-        run: zip -r angular-build-${{ github.run_number }}.zip dist/
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: .npm
+          key: ${{ runner.os }}-npm-cache-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-cache-
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4  # ✅ Fixed version
+        with:
+          name: angular-build
+          path: dist/frontend/
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Change based on your region
+          aws-region: us-east-1
 
-      - name: Upload ZIP to S3
-        run: aws s3 cp angular-build-${{ github.run_number }}.zip s3://your-angular-builds-bucket/
-
-      - name: Print S3 URL
-        run: echo "Build uploaded to S3: https://s3.amazonaws.com/your-angular-builds-bucket/angular-build-${{ github.run_number }}.zip"
+      - name: Deploy to S3
+        run: aws s3 sync dist/frontend/ s3://your-angular-builds-bucket/ --delete
