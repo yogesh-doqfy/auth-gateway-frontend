@@ -1,46 +1,38 @@
-name: Build and Deploy Angular App
+name: Build and Deploy Angular App using Docker
 
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set Up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install Dependencies (Fix Conflicts)
+      - name: Build Docker Image
         run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
-          npm ci --cache .npm --prefer-offline --legacy-peer-deps || npm install --legacy-peer-deps
+          docker build -t my-angular-app:latest .
 
-      - name: Build Angular App
-        run: npm run build
+      - name: Run Docker Container
+        run: |
+          docker run -d --name angular-container my-angular-app:latest
 
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v3
-        with:
-          path: .npm
-          key: ${{ runner.os }}-npm-cache-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-cache-
+      - name: Copy Build Artifacts from Container
+        run: |
+          docker cp angular-container:/app/dist/frontend ./dist/frontend
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4  # ✅ Fixed version
-        with:
-          name: angular-build
-          path: dist/frontend/
+      - name: Stop and Remove Container
+        run: |
+          docker stop angular-container
+          docker rm angular-container
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -50,4 +42,5 @@ jobs:
           aws-region: us-east-1
 
       - name: Deploy to S3
-        run: aws s3 sync dist/frontend/ s3://your-angular-builds-bucket/ --delete
+        run: |
+          aws s3 sync ./dist/frontend s3://your-angular-builds-bucket/ --delete
