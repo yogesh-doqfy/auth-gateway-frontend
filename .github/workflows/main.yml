@@ -23,16 +23,15 @@ jobs:
 
       - name: Run Docker Container
         run: |
-          docker run -d --name angular-container my-angular-app:latest tail -f /dev/null  # Keep container running
+          docker run -d --name angular-container my-angular-app:latest tail -f /dev/null  # Keep running
 
       - name: Debug Build Output
         run: |
-          docker exec angular-container ls -la /app/dist/
-          docker exec angular-container ls -la /app/dist/auth-portal
+          docker exec angular-container ls -la /usr/share/nginx/html/auth-portal
 
       - name: Copy Build Artifacts from Container
         run: |
-          docker cp angular-container:/app/dist/auth-portal ./dist/auth-portal
+          docker cp angular-container:/usr/share/nginx/html/auth-portal ./dist/auth-portal
 
       - name: Stop and Remove Container
         run: |
