@@ -48,14 +48,23 @@ jobs:
           zip -r "latest-${BRANCH}.zip" auth-portal
           zip -r "v${VERSION}-${BRANCH}.zip" auth-portal
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      # Authenticate with Google Cloud
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      - name: Upload Zip Files to S3
-        run: |
-          aws s3 cp ./dist/latest-${BRANCH}.zip s3://doqfy-sample-check/latest-${BRANCH}.zip
-          aws s3 cp ./dist/v${VERSION}-${BRANCH}.zip s3://doqfy-sample-check/v${VERSION}-${BRANCH}.zip
+      # Upload zip files to Google Cloud Storage
+      - name: Upload Zip Files to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: ./dist/latest-${BRANCH}.zip
+          destination: doqfy-auth-gateway-fronend-dist
+          gzip: false
+
+      - name: Upload Versioned Zip File to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: ./dist/v${VERSION}-${BRANCH}.zip
+          destination: doqfy-auth-gateway-fronend-dist
+          gzip: false
