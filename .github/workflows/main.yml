@@ -40,7 +40,7 @@ jobs:
 
       - name: Copy Build Artifacts from Container
         run: |
-          mkdir -p ./dist/auth-portal  # Ensure directory exists before copying
+          mkdir -p ./dist/auth-portal
           docker cp angular-container:/usr/share/nginx/html/auth-portal ./dist/auth-portal
 
       - name: Stop and Remove Container
@@ -50,13 +50,12 @@ jobs:
 
       - name: Verify Build Artifacts
         run: |
-          ls -lah ./dist/auth-portal  # Check if files are copied correctly
+          ls -lah ./dist/auth-portal
 
       - name: Zip Build Artifacts
         run: |
           cd ./dist
           zip -r "latest-${BRANCH}.zip" auth-portal
-          zip -r "v${VERSION}-${BRANCH}.zip" auth-portal
           ls -lah  # Verify if zip files are created
 
       # Authenticate with Google Cloud
@@ -65,6 +64,25 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
+      # Get the latest version number from the GCS folder
+      - name: Fetch Latest Version from GCS
+        run: |
+          LATEST_VERSION=$(gsutil ls gs://doqfy-auth-gateway-fronend-dist/staging/ | grep -oP 'v\K[0-9]+(?=-staging\.zip)' | sort -nr | head -n1)
+          if [ -z "$LATEST_VERSION" ]; then
+            NEW_VERSION=1
+          else
+            NEW_VERSION=$((LATEST_VERSION + 1))
+          fi
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Computed New Version: v$NEW_VERSION"
+
+      # Create the new versioned zip file
+      - name: Zip Versioned Artifacts
+        run: |
+          cd ./dist
+          zip -r "v${NEW_VERSION}-${BRANCH}.zip" auth-portal
+          ls -lah  # Verify zip files
+
       # Verify if files exist before uploading
       - name: Check for zip files before upload
         run: |
@@ -72,22 +90,23 @@ jobs:
             echo "Error: ./dist/latest-${BRANCH}.zip not found!"
             exit 1
           fi
-          if [ ! -f "./dist/v${VERSION}-${BRANCH}.zip" ]; then
-            echo "Error: ./dist/v${VERSION}-${BRANCH}.zip not found!"
+          if [ ! -f "./dist/v${NEW_VERSION}-${BRANCH}.zip" ]; then
+            echo "Error: ./dist/v${NEW_VERSION}-${BRANCH}.zip not found!"
             exit 1
           fi
 
-      # Upload zip files to Google Cloud Storage
-      - name: Upload Zip Files to GCS
+      # Upload the latest zip file (always overwrites)
+      - name: Upload Latest Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: ./dist/latest-${{ env.BRANCH }}.zip
-          destination: doqfy-auth-gateway-fronend-dist
+          destination: doqfy-auth-gateway-fronend-dist/staging
           gzip: false
 
+      # Upload the versioned zip file (never overwrites)
       - name: Upload Versioned Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: ./dist/v${{ env.VERSION }}-${{ env.BRANCH }}.zip
-          destination: doqfy-auth-gateway-fronend-dist
+          path: ./dist/v${{ env.NEW_VERSION }}-${{ env.BRANCH }}.zip
+          destination: doqfy-auth-gateway-fronend-dist/staging
           gzip: false
