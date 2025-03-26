@@ -52,12 +52,6 @@ jobs:
         run: |
           ls -lah ./dist/auth-portal
 
-      - name: Zip Build Artifacts
-        run: |
-          cd ./dist
-          zip -r "latest-${BRANCH}.zip" auth-portal
-          ls -lah  # Verify if zip files are created
-
       # Authenticate with Google Cloud
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
@@ -76,14 +70,15 @@ jobs:
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Computed New Version: v$NEW_VERSION"
 
-      # Create the new versioned zip file
-      - name: Zip Versioned Artifacts
+      # Create latest and versioned zip files
+      - name: Zip Build Artifacts
         run: |
           cd ./dist
+          zip -r "latest-${BRANCH}.zip" auth-portal
           zip -r "v${NEW_VERSION}-${BRANCH}.zip" auth-portal
           ls -lah  # Verify zip files
 
-      # Verify if files exist before uploading
+      # Verify if zip files exist before uploading
       - name: Check for zip files before upload
         run: |
           if [ ! -f "./dist/latest-${BRANCH}.zip" ]; then
