@@ -95,6 +95,11 @@ jobs:
             exit 1
           fi
 
+      # Delete only latest-staging.zip before uploading new one
+      - name: Delete Old Latest Zip File
+        run: |
+          gsutil rm gs://doqfy-auth-gateway-fronend-dist/staging/latest-${BRANCH}.zip || echo "No previous latest zip found, skipping delete."
+
       # Upload the latest zip file (always overwrites)
       - name: Upload Latest Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
