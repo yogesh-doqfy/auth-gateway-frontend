@@ -14,5 +14,6 @@ RUN mkdir -p /usr/share/nginx/html/auth-portal
 COPY --from=build /app/dist/auth-portal /usr/share/nginx/html/auth-portal
 
 COPY nginx.conf /etc/nginx/nginx.conf
+
 EXPOSE 8002
 CMD ["nginx", "-g", "daemon off;"]
