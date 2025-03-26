@@ -46,7 +46,7 @@ jobs:
         run: |
           ls -lah ./dist/auth-portal
 
-      - name: Zip Build Artifacts
+      - name: Zip Build Artifacts (Latest)
         run: |
           cd ./dist
           zip -r "latest-${BRANCH}.zip" auth-portal
@@ -57,15 +57,17 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      # 🔥 **Fetch all zip files from GCS bucket and find the latest version**
+      # 🔥 **Fetch ALL Existing Versions from GCS**
       - name: Fetch Existing Versions from GCS
         run: |
           FILES=$(gsutil ls gs://doqfy-auth-gateway-fronend-dist/staging/ | grep -oP 'v\K[0-9]+(?=-staging\.zip)' || echo "")
+
           if [[ -z "$FILES" ]]; then
             NEW_VERSION=1
           else
-            NEW_VERSION=$(( $(echo "$FILES" | sort -nr | head -n1) + 1 ))
+            NEW_VERSION=$(( $(echo "$FILES" | sort -n | tail -n1) + 1 ))
           fi
+
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Next Version: v${NEW_VERSION}-staging.zip"
 
@@ -75,7 +77,7 @@ jobs:
           zip -r "v${NEW_VERSION}-${BRANCH}.zip" auth-portal
           ls -lah  # Verify zip files
 
-      # ✅ **Delete Only latest-staging.zip (NOT versioned files)**
+      # ✅ **Delete Only latest-staging.zip (Keep Versioned Files)**
       - name: Delete Old Latest Zip File
         run: |
           gsutil rm gs://doqfy-auth-gateway-fronend-dist/staging/latest-${BRANCH}.zip || echo "No previous latest zip found, skipping delete."
