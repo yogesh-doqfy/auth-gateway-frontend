@@ -50,15 +50,15 @@ jobs:
         run: |
           cd ./dist
           zip -r "latest-${BRANCH}.zip" auth-portal
-          ls -lah  # Verify if zip files are created
+          ls -lah  # Verify zip files
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      # 🔥 Fetch highest existing version to avoid overwriting old versions
-      - name: Fetch Latest Version from GCS
+      # 🔥 **Fetch all zip files from GCS bucket and find the latest version**
+      - name: Fetch Existing Versions from GCS
         run: |
           FILES=$(gsutil ls gs://doqfy-auth-gateway-fronend-dist/staging/ | grep -oP 'v\K[0-9]+(?=-staging\.zip)' || echo "")
           if [[ -z "$FILES" ]]; then
@@ -75,12 +75,12 @@ jobs:
           zip -r "v${NEW_VERSION}-${BRANCH}.zip" auth-portal
           ls -lah  # Verify zip files
 
-      # ✅ DELETE ONLY latest-staging.zip (NOT versioned files)
+      # ✅ **Delete Only latest-staging.zip (NOT versioned files)**
       - name: Delete Old Latest Zip File
         run: |
           gsutil rm gs://doqfy-auth-gateway-fronend-dist/staging/latest-${BRANCH}.zip || echo "No previous latest zip found, skipping delete."
 
-      # 🚀 Upload latest zip (always replaced)
+      # 🚀 **Upload latest zip (Always replaced)**
       - name: Upload Latest Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
@@ -88,7 +88,7 @@ jobs:
           destination: doqfy-auth-gateway-fronend-dist/staging
           gzip: false
 
-      # 🚀 Upload versioned zip (NEVER overwritten)
+      # 🚀 **Upload versioned zip (NEVER overwritten)**
       - name: Upload Versioned Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
