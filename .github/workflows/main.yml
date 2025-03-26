@@ -19,15 +19,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract Version and Branch Name
-        id: get_version_branch
+      - name: Extract Branch Name
+        id: get_branch
         run: |
-          echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
           echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr -d '\n')" >> $GITHUB_ENV
 
-      - name: Debug Version and Branch
+      - name: Debug Branch
         run: |
-          echo "Extracted Version: $VERSION"
           echo "Extracted Branch: $BRANCH"
 
       - name: Build Docker Image
@@ -52,41 +50,24 @@ jobs:
         run: |
           ls -lah ./dist/auth-portal
 
+      # Zip Build Artifacts (Only Latest)
+      - name: Zip Build Artifacts
+        run: |
+          cd ./dist
+          zip -r "latest-${BRANCH}.zip" auth-portal
+          ls -lah  # Verify zip files
+
       # Authenticate with Google Cloud
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      # Get the latest version number from the GCS folder
-      - name: Fetch Latest Version from GCS
-        run: |
-          LATEST_VERSION=$(gsutil ls gs://doqfy-auth-gateway-fronend-dist/staging/ | grep -oP 'v\K[0-9]+(?=-staging\.zip)' | sort -nr | head -n1)
-          if [ -z "$LATEST_VERSION" ]; then
-            NEW_VERSION=1
-          else
-            NEW_VERSION=$((LATEST_VERSION + 1))
-          fi
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "Computed New Version: v$NEW_VERSION"
-
-      # Create latest and versioned zip files
-      - name: Zip Build Artifacts
-        run: |
-          cd ./dist
-          zip -r "latest-${BRANCH}.zip" auth-portal
-          zip -r "v${NEW_VERSION}-${BRANCH}.zip" auth-portal
-          ls -lah  # Verify zip files
-
-      # Verify if zip files exist before uploading
-      - name: Check for zip files before upload
+      # Verify if zip file exists before uploading
+      - name: Check for zip file before upload
         run: |
           if [ ! -f "./dist/latest-${BRANCH}.zip" ]; then
             echo "Error: ./dist/latest-${BRANCH}.zip not found!"
-            exit 1
-          fi
-          if [ ! -f "./dist/v${NEW_VERSION}-${BRANCH}.zip" ]; then
-            echo "Error: ./dist/v${NEW_VERSION}-${BRANCH}.zip not found!"
             exit 1
           fi
 
@@ -95,13 +76,5 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: ./dist/latest-${{ env.BRANCH }}.zip
-          destination: doqfy-auth-gateway-fronend-dist/staging
-          gzip: false
-
-      # Upload the versioned zip file (never overwrites)
-      - name: Upload Versioned Zip File to GCS
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: ./dist/v${{ env.NEW_VERSION }}-${{ env.BRANCH }}.zip
           destination: doqfy-auth-gateway-fronend-dist/staging
           gzip: false
