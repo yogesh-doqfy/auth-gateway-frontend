@@ -19,18 +19,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract Version and Branch Name
-        id: get_version_branch
-        run: |
-          echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr -d '\n')" >> $GITHUB_ENV
+      - name: Extract Branch Name
+        id: get_branch
+        run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
       - name: Build Docker Image
-        run: |
-          docker build -t my-angular-app:latest .
+        run: docker build -t my-angular-app:latest .
 
       - name: Run Docker Container
-        run: |
-          docker run -d --name angular-container my-angular-app:latest tail -f /dev/null
+        run: docker run -d --name angular-container my-angular-app:latest tail -f /dev/null
 
       - name: Copy Build Artifacts from Container
         run: |
@@ -43,21 +40,9 @@ jobs:
           docker rm angular-container
 
       - name: Verify Build Artifacts
-        run: |
-          ls -lah ./dist/auth-portal
+        run: ls -lah ./dist/auth-portal
 
-      - name: Zip Build Artifacts
-        run: |
-          cd ./dist
-          zip -r "latest-${BRANCH}.zip" auth-portal
-          ls -lah  # Verify if zip files are created
-
-      - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
-      # 🔥 Fetch highest existing version to avoid overwriting old versions
+      # ✅ Get the latest version number from GCS
       - name: Fetch Latest Version from GCS
         run: |
           FILES=$(gsutil ls gs://doqfy-auth-gateway-fronend-dist/staging/ | grep -oP 'v\K[0-9]+(?=-staging\.zip)' || echo "")
@@ -69,29 +54,26 @@ jobs:
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Next Version: v${NEW_VERSION}-staging.zip"
 
-      - name: Zip Versioned Artifacts
+      # ✅ Create versioned zip (v1, v2, v3...)
+      - name: Zip Versioned Build Artifacts
         run: |
           cd ./dist
-          zip -r "v${NEW_VERSION}-${BRANCH}.zip" auth-portal
-          ls -lah  # Verify zip files
+          zip -r "v${NEW_VERSION}-staging.zip" auth-portal
+          zip -r "latest-staging.zip" auth-portal
+          ls -lah
 
-      # ✅ DELETE ONLY latest-staging.zip (NOT versioned files)
-      - name: Delete Old Latest Zip File
-        run: |
-          gsutil rm gs://doqfy-auth-gateway-fronend-dist/staging/latest-${BRANCH}.zip || echo "No previous latest zip found, skipping delete."
+      # 🚀 Upload versioned zip (never deleted)
+      - name: Upload Versioned Zip File to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: ./dist/v${{ env.NEW_VERSION }}-staging.zip
+          destination: doqfy-auth-gateway-fronend-dist/staging
+          gzip: false
 
       # 🚀 Upload latest zip (always replaced)
       - name: Upload Latest Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: ./dist/latest-${{ env.BRANCH }}.zip
-          destination: doqfy-auth-gateway-fronend-dist/staging
-          gzip: false
-
-      # 🚀 Upload versioned zip (NEVER overwritten)
-      - name: Upload Versioned Zip File to GCS
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: ./dist/v${{ env.NEW_VERSION }}-${{ env.BRANCH }}.zip
+          path: ./dist/latest-staging.zip
           destination: doqfy-auth-gateway-fronend-dist/staging
           gzip: false
