@@ -71,10 +71,10 @@ jobs:
             exit 1
           fi
 
-      # Upload the latest zip file (always overwrites)
+      # Upload the latest zip file (directly to GCS bucket, no staging folder)
       - name: Upload Latest Zip File to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: ./dist/latest-${{ env.BRANCH }}.zip
-          destination: doqfy-auth-gateway-fronend-dist/staging
+          destination: doqfy-auth-gateway-fronend-dist
           gzip: false
