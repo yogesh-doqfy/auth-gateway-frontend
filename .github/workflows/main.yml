@@ -50,6 +50,9 @@ jobs:
       - name: Temporarily Disable Private Flag
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
 
+      - name: Increment Version
+        run: npm version patch --no-git-tag-version
+
       - name: Publish Build Artifacts to Artifact Registry
         run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/
 
