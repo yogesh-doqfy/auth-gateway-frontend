@@ -38,17 +38,24 @@ jobs:
       - name: Create Download Directory
         run: mkdir -p downloaded_package
 
-      - name: Download Latest Package
+      - name: List Available Files (Debugging)
         run: |
-          ARTIFACT_PATH="projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/files/auth-frontend-${LATEST_VERSION}.tgz"
-
           gcloud artifacts files list \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
             --package=auth-frontend \
             --version=${LATEST_VERSION}
 
-          gcloud artifacts files download ${ARTIFACT_PATH} \
+      - name: Download Latest Package
+        run: |
+          RELATIVE_FILE_PATH="auth-frontend/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz"
+          
+          gcloud artifacts files download \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --package=auth-frontend \
+            --version=${LATEST_VERSION} \
+            --path=${RELATIVE_FILE_PATH} \
             --destination=downloaded_package/auth-frontend-${LATEST_VERSION}.tgz
 
       - name: Upload to Google Cloud Storage
