@@ -1,16 +1,17 @@
-name: Deploy to Google Artifact Registry
+name: Deploy Angular to GCS
 
 on:
+  workflow_dispatch:  # Manually triggered
   push:
     branches:
-      - master
+      - master  # Change this to your deployment branch if different
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Authenticate with Google Cloud
@@ -18,21 +19,31 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: crucial-context-454812-v3
-
-      - name: Configure npm for Artifact Registry
+      - name: Configure gcloud
         run: |
-          echo "registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/" >> ~/.npmrc
-          echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/:_authToken=\$(gcloud auth print-access-token)" >> ~/.npmrc
+          gcloud config set project crucial-context-454812-v3
 
-      - name: Install dependencies
-        run: npm install
+      - name: Download Angular `dist` from Artifact Registry
+        run: |
+          gcloud artifacts files list \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --package=my-angular-app --format="get(name)" | \
+          tail -n1 | xargs -I {} gcloud artifacts files download {} --destination=dist.zip
 
-      - name: Build project
-        run: npm run build
+          unzip dist.zip -d dist
 
-      - name: Publish to Google Artifact Registry
-        run: npm publish
+      - name: Upload `dist` to GCS
+        run: |
+          gsutil -m rsync -r dist gs://your-bucket-name
+
+      - name: Set Public Access (Optional)
+        run: |
+          gsutil iam ch allUsers:objectViewer gs://your-bucket-name
+
+      - name: Enable Website Hosting
+        run: |
+          gcloud storage buckets update gs://your-bucket-name --web-site-main-page index.html
+
+      - name: Print Deployment URL
+        run: echo "App deployed at https://storage.googleapis.com/your-bucket-name/index.html"
