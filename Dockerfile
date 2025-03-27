@@ -7,7 +7,6 @@ COPY . .
 RUN npm run build --prod
 
 FROM nginx:1.13-alpine
-
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 RUN mkdir -p /usr/share/nginx/html/auth-portal
