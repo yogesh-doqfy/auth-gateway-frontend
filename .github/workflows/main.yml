@@ -1,52 +1,38 @@
-name: Deploy Auth Frontend
+name: Deploy to Google Artifact Registry
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure gcloud authentication
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: crucial-context-454812-v3
+
+      - name: Configure npm for Artifact Registry
         run: |
-          gcloud auth configure-docker us-west2-docker.pkg.dev
-          gcloud auth application-default print-access-token > access-token.txt
+          echo "registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/" >> ~/.npmrc
+          echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/:_authToken=\$(gcloud auth print-access-token)" >> ~/.npmrc
 
-      - name: Set up NPM for Artifact Registry
-        run: |
-          npm config set '//us-west2-npm.pkg.dev/:_authToken' "$(gcloud auth print-access-token)"
+      - name: Install dependencies
+        run: npm install
 
-      - name: Verify authentication
-        run: gcloud auth list
+      - name: Build project
+        run: npm run build
 
-      - name: Download artifact from Artifact Registry
-        run: |
-          ACCESS_TOKEN=$(gcloud auth print-access-token)
-          curl -H "Authorization: Bearer $ACCESS_TOKEN" \
-               -o auth-frontend.tgz \
-               "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz"
-
-          if [ ! -s auth-frontend.tgz ]; then
-            echo "❌ Error: Downloaded file is empty or corrupted."
-            exit 1
-          fi
-
-      - name: Extract Artifact
-        run: |
-          mkdir -p auth-frontend
-          tar -xzf auth-frontend.tgz -C auth-frontend --strip-components=1
-
-      - name: Deploy (Customize this step)
-        run: |
-          echo "🚀 Deploying the application..."
+      - name: Publish to Google Artifact Registry
+        run: npm publish
