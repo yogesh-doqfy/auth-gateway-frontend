@@ -24,7 +24,7 @@ jobs:
 
       - name: Find Latest Version of `auth-frontend`
         run: |
-          set -x  # Enable debugging
+          set -x
           LATEST_VERSION=$(gcloud artifacts versions list \
             --package=auth-frontend \
             --repository=auth-gateway-frontend-cicd \
@@ -32,37 +32,26 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
-          
-          # Extract only the version number (strip package name prefix)
-          LATEST_VERSION=$(basename "$LATEST_VERSION")
 
+          LATEST_VERSION=$(basename "$LATEST_VERSION")  # Extract only version number
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
           echo "Latest Version: $LATEST_VERSION"
 
       - name: Download Latest Package
         run: |
-          set -x  # Enable debugging
+          set -x
           mkdir -p downloaded_package
 
           gcloud artifacts files download \
             projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --destination=downloaded_package/auth-frontend-${LATEST_VERSION}.tgz
+            --destination=downloaded_package/
 
-      - name: Extract Package
+      - name: Upload Package to GCS
         run: |
-          mkdir -p dist
-          tar -xzf downloaded_package/auth-frontend-${LATEST_VERSION}.tgz -C dist
-
-      - name: Upload `dist` to GCS
-        run: gsutil -m rsync -r dist gs://your-bucket-name
-
-      - name: Set Public Access (Optional)
-        run: gsutil iam ch allUsers:objectViewer gs://your-bucket-name
-
-      - name: Enable Website Hosting
-        run: gcloud storage buckets update gs://your-bucket-name --web-site-main-page index.html
+          set -x
+          gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
 
       - name: Print Deployment URL
-        run: echo "App deployed at https://storage.googleapis.com/your-bucket-name/index.html"
+        run: echo "Package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${LATEST_VERSION}.tgz"
