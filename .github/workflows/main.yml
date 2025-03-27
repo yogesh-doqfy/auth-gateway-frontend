@@ -1,44 +1,40 @@
-name: Build and Deploy Angular App
+name: Build and Deploy Frontend
 
 on:
   push:
     branches:
-      - master
-      - dev
-      - staging
-  workflow_dispatch:
+      - main
 
 jobs:
-  build-and-deploy:
+  build-deploy:
+    name: Build and Deploy to GCP
     runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: crucial-context-454812-v3
+      REPO_NAME: auth-gateway-frontend
+      REGION: us-west2
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set Node.js Version
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          registry-url: 'https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/'
-
-      - name: Install Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Install Webpack
-        run: npm install webpack --save-dev
-
-      - name: Build Angular App
-        run: npm run build --omit=dev
-
-      - name: Verify Build Artifacts
-        run: ls -lah ./dist
+        uses: actions/checkout@v2
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Upload Build to Artifact Registry
+      - name: Configure NPM Authentication for Artifact Registry
         run: |
-          npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/
+          echo "//${{ env.REGION }}-npm.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
+          cat ~/.npmrc
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build Angular App
+        run: npm run build --prod
+
+      - name: Deploy to GCP Storage (Optional)
+        run: |
+          gsutil -m rsync -r dist gs://your-gcs-bucket-name
