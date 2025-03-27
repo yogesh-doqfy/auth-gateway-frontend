@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - staging
   pull_request:
     branches:
-      - master
+      - staging
 
 jobs:
   build-push-artifactory:
@@ -33,8 +33,8 @@ jobs:
           npm set @crucial-context-454812-v3:registry=https://${{ env.ARTIFACT_REGISTRY }}/
           npm set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
 
-      - name: Install Frontend from Artifact Registry
-        run: npm install auth-frontend@latest
+      - name: Install Frontend from Artifact Registry (With Legacy Peer Deps)
+        run: npm install auth-frontend@latest --legacy-peer-deps
 
       - name: Install Angular CLI
         run: npm install -g @angular/cli
