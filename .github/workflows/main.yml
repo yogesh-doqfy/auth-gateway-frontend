@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          registry-url: https://$ARTIFACT_REGISTRY/
+          cache: 'npm'
 
       - name: Install Dependencies
         run: npm install --force
@@ -44,7 +44,8 @@ jobs:
 
       - name: Configure npm for Artifact Registry
         run: |
-          echo "//${{ env.ARTIFACT_REGISTRY }}/:_authToken=$(gcloud auth print-access-token)" >> ~/.npmrc
+          echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
+          npm config set registry "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/"
 
       - name: Temporarily Disable Private Flag
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
@@ -55,18 +56,15 @@ jobs:
       - name: Increment Version
         run: |
           CURRENT_VERSION=$(jq -r .version package.json)
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-          NEW_PATCH=$((PATCH + 1))
-          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2"."$3+1}')
           jq --arg new_version "$NEW_VERSION" '.version=$new_version' package.json > temp.json && mv temp.json package.json
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "Updated package version to $NEW_VERSION"
 
       - name: Publish Latest Version
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest --access public
+        run: npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/ --tag latest
 
       - name: Publish Versioned Package
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }} --access public
+        run: npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/ --tag version-${{ env.NEW_VERSION }}
 
       - name: Deploy (Optional)
         if: success()
