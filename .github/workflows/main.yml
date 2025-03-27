@@ -10,12 +10,13 @@ on:
 
 jobs:
   build-push-artifactory:
-    name: Build and Push to Artifactory
+    name: Build and Push to Artifact Registry
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: crucial-context-454812-v3
-      REPO_NAME: agb
+      REPO_NAME: auth-gateway-frontend
       REGION: us-west2
+      ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend
 
     steps:
       - name: Checkout repository
@@ -41,9 +42,13 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Push Build Artifacts to Artifact Registry
+      - name: Configure npm for Artifact Registry
         run: |
-          gsutil -m cp -r dist/* gs://${{ env.REGION }}-artifacts/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/
+          npm config set @crucial-context-454812-v3:registry=https://${{ env.ARTIFACT_REGISTRY }}/
+          npm config set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
+
+      - name: Publish Build Artifacts to Artifact Registry
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/
 
       - name: Deploy (Optional)
         if: success()
