@@ -44,8 +44,9 @@ jobs:
 
       - name: Configure npm for Artifact Registry
         run: |
-          echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
-          npm config set registry "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/"
+          npm set registry=https://${{ env.ARTIFACT_REGISTRY }}/
+          npm set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
+          echo "NPM registry configured successfully."
 
       - name: Temporarily Disable Private Flag
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
@@ -55,16 +56,28 @@ jobs:
 
       - name: Increment Version
         run: |
-          CURRENT_VERSION=$(jq -r .version package.json)
-          NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2"."$3+1}')
+          PACKAGE_NAME=$(jq -r .name package.json)
+
+          # Fetch the latest published version or default to "0.0.0"
+          PUBLISHED_VERSION=$(npm show $PACKAGE_NAME version --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "0.0.0")
+
+          # If no version exists, start from 0.0.1
+          if [[ "$PUBLISHED_VERSION" == "0.0.0" ]]; then
+            NEW_VERSION="0.0.1"
+          else
+            NEW_VERSION=$(echo $PUBLISHED_VERSION | awk -F. '{print $1"."$2"."$3+1}')
+          fi
+
+          # Update package.json with new version
           jq --arg new_version "$NEW_VERSION" '.version=$new_version' package.json > temp.json && mv temp.json package.json
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Updated package.json version to $NEW_VERSION"
 
       - name: Publish Latest Version
-        run: npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/ --tag latest
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
 
       - name: Publish Versioned Package
-        run: npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/ --tag version-${{ env.NEW_VERSION }}
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }}
 
       - name: Deploy (Optional)
         if: success()
