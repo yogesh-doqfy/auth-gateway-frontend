@@ -51,7 +51,7 @@ jobs:
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
 
       - name: Publish Build Artifacts to Artifact Registry
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --access restricted
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/
 
       - name: Deploy (Optional)
         if: success()
