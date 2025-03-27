@@ -24,7 +24,6 @@ jobs:
 
       - name: Find Latest Version of `auth-frontend`
         run: |
-          set -x
           LATEST_VERSION=$(gcloud artifacts versions list \
             --package=auth-frontend \
             --repository=auth-gateway-frontend-cicd \
@@ -33,25 +32,22 @@ jobs:
             --limit=1 \
             --format="value(name)")
 
-          LATEST_VERSION=$(basename "$LATEST_VERSION")  # Extract only version number
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
-          echo "Latest Version: $LATEST_VERSION"
 
       - name: Download Latest Package
         run: |
           set -x
           mkdir -p downloaded_package
+          FILE_PATH="auth-frontend/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz"
 
-          gcloud artifacts files download \
-            projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz \
+          gcloud artifacts files download "$FILE_PATH" \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
             --destination=downloaded_package/
 
       - name: Upload Package to GCS
         run: |
-          set -x
           gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
 
       - name: Print Deployment URL
-        run: echo "Package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${LATEST_VERSION}.tgz"
+        run: echo "Package uploaded to: gs://your-bucket-name/auth-frontend-${LATEST_VERSION}.tgz"
