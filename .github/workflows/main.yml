@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: crucial-context-454812-v3
-      REPO_NAME: auth-gateway-frontend
+      REPO_NAME: auth-gateway-frontend-cicd
       REGION: us-west2
       ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend
 
