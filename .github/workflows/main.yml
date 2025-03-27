@@ -39,11 +39,13 @@ jobs:
 
       - name: Download Latest Package
         run: |
-          gcloud artifacts files download "auth-frontend/$LATEST_VERSION/auth-frontend-$LATEST_VERSION.tgz" \
+          FILE_PATH="projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/$LATEST_VERSION/files/auth-frontend-$LATEST_VERSION.tgz"
+          gcloud artifacts files download "$FILE_PATH" \
+            --location=us-west2 \
             --destination="downloaded_package/auth-frontend-$LATEST_VERSION.tgz"
 
       - name: Upload to Google Cloud Storage
-        run: gsutil cp "downloaded_package/auth-frontend-$LATEST_VERSION.tgz" gs://your-bucket-name/
+        run: gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
 
       - name: Print Deployment URL
-        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-$LATEST_VERSION.tgz"
+        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${LATEST_VERSION}.tgz"
