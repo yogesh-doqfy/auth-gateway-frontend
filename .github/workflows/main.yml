@@ -10,39 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Authenticate with Google Cloud
-        run: |
-          gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
-          gcloud auth list
-          gcloud auth print-access-token
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: List Available Versions (Debugging)
+      - name: Configure npm for Artifact Registry
         run: |
-          gcloud artifacts packages list \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2
+          gcloud auth print-access-token | npm login --registry=https://us-west2-npm.pkg.dev --scope=@crucial-context-454812-v3
 
-      - name: Download Prebuilt Frontend
+      - name: Download artifact from Artifact Registry
         run: |
           ACCESS_TOKEN=$(gcloud auth print-access-token)
-          curl -v -H "Authorization: Bearer $ACCESS_TOKEN" -o auth-frontend.tgz \
-            "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz"
+          curl -H "Authorization: Bearer $ACCESS_TOKEN" \
+               -o auth-frontend.tgz \
+               "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz"
 
-          ls -lah auth-frontend.tgz  # Check file size
-          file auth-frontend.tgz  # Verify it's a valid tarball
+          if [ ! -s auth-frontend.tgz ]; then
+            echo "Error: Downloaded file is empty or corrupted."
+            exit 1
+          fi
 
-      - name: Verify Tarball Integrity
+      - name: Extract Artifact
         run: |
-          tar -tzf auth-frontend.tgz || echo "Tarball is corrupted!"
-
-      - name: Extract Frontend Build
-        run: |
-          mkdir auth-frontend
+          mkdir -p auth-frontend
           tar -xzf auth-frontend.tgz -C auth-frontend --strip-components=1
 
-      - name: Deploy to Hosting (if needed)
+      - name: Deploy (Customize this step)
         run: |
-          # Add your deployment steps here
+          echo "Deploy steps go here..."
