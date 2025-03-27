@@ -20,9 +20,7 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Configure gcloud
-        run: |
-          gcloud config set project crucial-context-454812-v3
-          gcloud config set artifacts/location us-west2
+        run: gcloud config set project crucial-context-454812-v3
 
       - name: Find Latest Version of `auth-frontend`
         run: |
@@ -40,10 +38,7 @@ jobs:
         run: |
           mkdir -p downloaded_package
           gcloud artifacts files download \
-            --project=crucial-context-454812-v3 \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2 \
-            --path=packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz \
+            projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz \
             --destination=downloaded_package/
 
       - name: Upload to Google Cloud Storage
