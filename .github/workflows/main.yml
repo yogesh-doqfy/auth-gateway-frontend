@@ -1,4 +1,4 @@
-name: Build and Publish Angular App to Google Artifact Registry (NPM)
+name: Build and Deploy Angular App
 
 on:
   push:
@@ -9,40 +9,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          registry-url: "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/"
-
-      - name: Install Dependencies
-        run: npm install --force
-
-      - name: Build Angular App
-        run: npm run build --prod
-
-      - name: Verify Build Output
-        run: ls -lah ./dist/auth-portal
-
-      - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
       - name: Configure NPM Authentication
-        run: |
-          echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
+        run: echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: Package and Publish to Google Artifact Registry (NPM)
-        run: |
-          mkdir -p ./package
-          cp -r ./dist/auth-portal ./package
-          echo '{ "name": "@crucial-context/auth-gateway-frontend", "version": "1.0.${{ github.run_number }}", "main": "index.html" }' > ./package/package.json
-          npm publish ./package --registry="https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/"
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build Project
+        run: npm run build --prod
+
+      - name: Verify Build Artifacts
+        run: ls -lah dist/
+
+      - name: Publish to Google Artifact Registry
+        run: npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
