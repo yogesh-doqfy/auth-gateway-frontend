@@ -9,8 +9,8 @@ on:
       - master
 
 jobs:
-  deploy:
-    name: Deploy Prebuilt Angular App
+  build-push-artifactory:
+    name: Build and Push to Artifact Registry
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: crucial-context-454812-v3
@@ -28,19 +28,17 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure npm for Artifact Registry
-        run: |
-          npm set @crucial-context-454812-v3:registry=https://${{ env.ARTIFACT_REGISTRY }}/
-          npm set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
-
       - name: Download Prebuilt Angular App
         run: |
-          wget -O auth-frontend.tgz https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz
+          ACCESS_TOKEN=$(gcloud auth print-access-token)
+          curl -H "Authorization: Bearer $ACCESS_TOKEN" \
+               -o auth-frontend.tgz \
+               "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz"
           mkdir auth-frontend
           tar -xzf auth-frontend.tgz -C auth-frontend --strip-components=1
 
       - name: Upload to Google Cloud Storage
         run: |
-          gsutil -m rsync -R auth-frontend/dist gs://${{ env.BUCKET_NAME }}
+          gsutil -m rsync -R auth-frontend gs://${{ env.BUCKET_NAME }}
           gsutil web set -m index.html -e 404.html gs://${{ env.BUCKET_NAME }}
           gsutil iam ch allUsers:objectViewer gs://${{ env.BUCKET_NAME }}
