@@ -22,20 +22,17 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Clean & Install Dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
-          npm install --legacy-peer-deps
+      - name: Install Dependencies
+        run: npm install --force
 
       - name: Install Angular CLI
         run: npm install -g @angular/cli
 
       - name: Build Angular Project
-        run: ng build --configuration=production
+        run: npx ng build --configuration=production
 
       - name: Run Tests
-        run: ng test --watch=false --browsers=ChromeHeadless
+        run: npx ng test --watch=false --browsers=ChromeHeadless
 
       - name: Deploy (Optional)
         if: success()
