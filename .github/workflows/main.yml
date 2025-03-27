@@ -16,7 +16,7 @@ jobs:
       PROJECT_ID: crucial-context-454812-v3
       REPO_NAME: auth-gateway-frontend-cicd
       REGION: us-west2
-      ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd
+      ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend
 
     steps:
       - name: Checkout repository
@@ -44,9 +44,8 @@ jobs:
 
       - name: Configure npm for Artifact Registry
         run: |
-          npm set registry=https://${{ env.ARTIFACT_REGISTRY }}/
+          npm set @crucial-context-454812-v3:registry=https://${{ env.ARTIFACT_REGISTRY }}/
           npm set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
-          echo "NPM registry configured successfully."
 
       - name: Temporarily Disable Private Flag
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
@@ -57,29 +56,24 @@ jobs:
       - name: Fetch Latest Version and Increment (Descending Order)
         run: |
           PACKAGE_NAME=$(jq -r .name package.json)
-
-          # Fetch all versions, sort them in descending order
-          PUBLISHED_VERSIONS=$(npm show $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null | jq -r '. | sort_by(.) | reverse | .[0]')
-          
-          if [[ -z "$PUBLISHED_VERSIONS" || "$PUBLISHED_VERSIONS" == "null" ]]; then
+          PUBLISHED_VERSIONS=$(npm show $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
+          if ! echo "$PUBLISHED_VERSIONS" | jq -e .[] > /dev/null 2>&1; then
+            PUBLISHED_VERSIONS="[]"
+          fi
+          LATEST_VERSION=$(echo $PUBLISHED_VERSIONS | jq -r 'sort_by(.) | reverse | .[0]' 2>/dev/null)
+          if [[ -z "$LATEST_VERSION" || "$LATEST_VERSION" == "null" ]]; then
             NEW_VERSION="0.0.1"
           else
-            # Extract latest version and increment
-            NEW_VERSION=$(echo $PUBLISHED_VERSIONS | awk -F. '{print $1"."$2"."$3+1}')
+            NEW_VERSION=$(echo $LATEST_VERSION | awk -F. '{print $1"."$2"."$3+1}')
           fi
-
-          # Update package.json with new version
           jq --arg new_version "$NEW_VERSION" '.version=$new_version' package.json > temp.json && mv temp.json package.json
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Updated package.json version to $NEW_VERSION"
 
-      - name: Verify New Version
-        run: jq .version package.json
-
-      - name: Publish Latest Version First
+      - name: Publish Latest Version
         run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
 
-      - name: Publish Versioned Package (Descending Order)
+      - name: Publish Versioned Package
         run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }}
 
       - name: Deploy (Optional)
