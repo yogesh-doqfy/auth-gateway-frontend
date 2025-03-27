@@ -16,7 +16,7 @@ jobs:
       PROJECT_ID: crucial-context-454812-v3
       REPO_NAME: auth-gateway-frontend-cicd
       REGION: us-west2
-      ARTIFACT_REGISTRY: https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd
+      ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd
 
     steps:
       - name: Checkout repository
@@ -44,8 +44,8 @@ jobs:
 
       - name: Configure npm for Artifact Registry
         run: |
-          npm config set @crucial-context-454812-v3:registry=${{ env.ARTIFACT_REGISTRY }}/
-          npm config set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
+          echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
+          npm config set registry "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/"
 
       - name: Temporarily Disable Private Flag
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
@@ -61,10 +61,10 @@ jobs:
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Publish Latest Version
-        run: npm publish --registry=${{ env.ARTIFACT_REGISTRY }}/ --tag latest
+        run: npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/ --tag latest
 
       - name: Publish Versioned Package
-        run: npm publish --registry=${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }}
+        run: npm publish --registry=https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/ --tag version-${{ env.NEW_VERSION }}
 
       - name: Deploy (Optional)
         if: success()
