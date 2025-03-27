@@ -31,22 +31,21 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
+
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
       - name: Download Latest Package
         run: |
-          set -x
           mkdir -p downloaded_package
-          FILE_PATH="auth-frontend/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz"
-
-          gcloud artifacts files download "$FILE_PATH" \
+          gcloud artifacts files download \
+            --package=auth-frontend \
+            --version=${LATEST_VERSION} \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --destination=downloaded_package/
+            --destination=downloaded_package/auth-frontend-${LATEST_VERSION}.tgz
 
-      - name: Upload Package to GCS
-        run: |
-          gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
+      - name: Upload to Google Cloud Storage
+        run: gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
 
       - name: Print Deployment URL
-        run: echo "Package uploaded to: gs://your-bucket-name/auth-frontend-${LATEST_VERSION}.tgz"
+        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${LATEST_VERSION}.tgz"
