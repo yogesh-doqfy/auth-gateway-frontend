@@ -50,6 +50,9 @@ jobs:
       - name: Temporarily Disable Private Flag
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
 
+      - name: Clear npm Cache
+        run: npm cache clean --force
+
       - name: Increment Version
         run: |
           NEW_VERSION=$(npm version patch --no-git-tag-version)
