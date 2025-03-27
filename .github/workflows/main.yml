@@ -35,14 +35,16 @@ jobs:
           echo "LATEST_VERSION=$LATEST_VERSION"
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
+      - name: Create Download Directory
+        run: mkdir -p downloaded_package
+
       - name: Download Latest Package
         run: |
-          mkdir -p downloaded_package
           gcloud artifacts files download \
             projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --destination=downloaded_package/auth-frontend-${LATEST_VERSION}.tgz
+            --destination=downloaded_package/
 
       - name: Upload to Google Cloud Storage
         run: gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
