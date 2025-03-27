@@ -55,14 +55,16 @@ jobs:
 
       - name: Increment Version
         run: |
-          NEW_VERSION=$(npm version patch --no-git-tag-version)
+          CURRENT_VERSION=$(jq -r .version package.json)
+          NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2"."$3+1}')
+          jq --arg new_version "$NEW_VERSION" '.version=$new_version' package.json > temp.json && mv temp.json package.json
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Publish Latest Version
         run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
 
       - name: Publish Versioned Package
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag ${{ env.NEW_VERSION }}
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }}
 
       - name: Deploy (Optional)
         if: success()
