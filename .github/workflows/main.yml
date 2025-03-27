@@ -51,10 +51,15 @@ jobs:
         run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
 
       - name: Increment Version
-        run: npm version patch --no-git-tag-version
+        run: |
+          NEW_VERSION=$(npm version patch --no-git-tag-version)
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Publish Build Artifacts to Artifact Registry
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/
+      - name: Publish Latest Version
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
+
+      - name: Publish Versioned Package
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag ${{ env.NEW_VERSION }}
 
       - name: Deploy (Optional)
         if: success()
