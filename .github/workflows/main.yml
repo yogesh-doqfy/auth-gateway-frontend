@@ -24,7 +24,8 @@ jobs:
 
       - name: Find Latest Version of `auth-frontend`
         run: |
-          LATEST_VERSION=$(gcloud artifacts versions list auth-frontend \
+          LATEST_VERSION=$(gcloud artifacts versions list \
+            --package=auth-frontend \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
             --sort-by="~CREATE_TIME" \
@@ -35,7 +36,7 @@ jobs:
 
       - name: Download Latest Package
         run: |
-          FILE_NAME="auth-frontend/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz"
+          FILE_NAME="projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz"
 
           echo "📥 Downloading $FILE_NAME"
           gcloud artifacts files download $FILE_NAME \
