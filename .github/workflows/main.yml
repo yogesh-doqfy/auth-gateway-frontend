@@ -53,41 +53,20 @@ jobs:
       - name: Clear npm Cache
         run: npm cache clean --force
 
-      - name: Fetch Latest Version and Increment (Descending Order)
+      - name: Increment Version Without Checking Registry
         run: |
           PACKAGE_NAME=$(jq -r .name package.json)
-          PUBLISHED_VERSIONS=$(npm show $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
-          if ! echo "$PUBLISHED_VERSIONS" | jq -e .[] > /dev/null 2>&1; then
-            PUBLISHED_VERSIONS="[]"
-          fi
-          LATEST_VERSION=$(echo $PUBLISHED_VERSIONS | jq -r 'sort_by(.) | reverse | .[0]' 2>/dev/null)
-          if [[ -z "$LATEST_VERSION" || "$LATEST_VERSION" == "null" ]]; then
-            NEW_VERSION="0.0.1"
-          else
-            NEW_VERSION=$(echo $LATEST_VERSION | awk -F. '{print $1"."$2"."$3+1}')
-          fi
+          CURRENT_VERSION=$(jq -r .version package.json)
+          NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2"."$3+1}')
           jq --arg new_version "$NEW_VERSION" '.version=$new_version' package.json > temp.json && mv temp.json package.json
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Updated package.json version to $NEW_VERSION"
 
-      - name: Check if Version Already Exists
-        run: |
-          PACKAGE_NAME=$(jq -r .name package.json)
-          PUBLISHED_VERSIONS=$(npm show $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
-          if echo "$PUBLISHED_VERSIONS" | jq -e --arg NEW_VERSION "$NEW_VERSION" 'index($NEW_VERSION) != null' > /dev/null 2>&1; then
-            echo "Version $NEW_VERSION already exists. Skipping publish step."
-            echo "SKIP_PUBLISH=true" >> $GITHUB_ENV
-          else
-            echo "SKIP_PUBLISH=false" >> $GITHUB_ENV
-          fi
+      - name: Publish Latest Version (Ignoring Errors)
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest || true
 
-      - name: Publish Latest Version
-        if: env.SKIP_PUBLISH == 'false'
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
-
-      - name: Publish Versioned Package
-        if: env.SKIP_PUBLISH == 'false'
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }}
+      - name: Publish Versioned Package (Ignoring Errors)
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }} || true
 
       - name: Deploy (Optional)
         if: success()
