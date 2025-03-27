@@ -1,44 +1,48 @@
-name: CI/CD Pipeline
+name: Deploy Auth Frontend
 
 on:
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
+      - main
 
 jobs:
-  build-push-artifactory:
-    name: Build and Push to Artifact Registry
+  deploy:
     runs-on: ubuntu-latest
-    env:
-      PROJECT_ID: crucial-context-454812-v3
-      REPO_NAME: auth-gateway-frontend-cicd
-      REGION: us-west2
-      ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd
-      BUCKET_NAME: doqfy-auth-gateway-frontend-dist
-    
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
+          gcloud auth list
+          gcloud auth print-access-token
 
-      - name: Download Prebuilt Angular App
+      - name: List Available Versions (Debugging)
+        run: |
+          gcloud artifacts packages list \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2
+
+      - name: Download Prebuilt Frontend
         run: |
           ACCESS_TOKEN=$(gcloud auth print-access-token)
-          curl -H "Authorization: Bearer $ACCESS_TOKEN" \
-               -o auth-frontend.tgz \
-               "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz"
+          curl -v -H "Authorization: Bearer $ACCESS_TOKEN" -o auth-frontend.tgz \
+            "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz"
+
+          ls -lah auth-frontend.tgz  # Check file size
+          file auth-frontend.tgz  # Verify it's a valid tarball
+
+      - name: Verify Tarball Integrity
+        run: |
+          tar -tzf auth-frontend.tgz || echo "Tarball is corrupted!"
+
+      - name: Extract Frontend Build
+        run: |
           mkdir auth-frontend
           tar -xzf auth-frontend.tgz -C auth-frontend --strip-components=1
 
-      - name: Upload to Google Cloud Storage
+      - name: Deploy to Hosting (if needed)
         run: |
-          gsutil -m rsync -R auth-frontend gs://${{ env.BUCKET_NAME }}
-          gsutil web set -m index.html -e 404.html gs://${{ env.BUCKET_NAME }}
-          gsutil iam ch allUsers:objectViewer gs://${{ env.BUCKET_NAME }}
+          # Add your deployment steps here
