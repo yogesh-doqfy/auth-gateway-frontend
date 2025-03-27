@@ -1,80 +1,49 @@
-name: Build and Deploy Angular App using Docker
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - master
-      - dev
-      - staging
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  build-and-deploy:
+  build-push-artifactory:
+    name: Build and Push to Artifact Registry
     runs-on: ubuntu-latest
-
+    env:
+      PROJECT_ID: crucial-context-454812-v3
+      REPO_NAME: auth-gateway-frontend-cicd
+      REGION: us-west2
+      ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd
+      BUCKET_NAME: doqfy-auth-gateway-frontend-dist
+    
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Extract Branch Name
-        id: get_branch
-        run: |
-          echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr -d '\n')" >> $GITHUB_ENV
-
-      - name: Debug Branch
-        run: |
-          echo "Extracted Branch: $BRANCH"
-
-      - name: Build Docker Image
-        run: |
-          docker build -t my-angular-app:latest .
-
-      - name: Run Docker Container
-        run: |
-          docker run -d --name angular-container my-angular-app:latest tail -f /dev/null
-
-      - name: Copy Build Artifacts from Container
-        run: |
-          mkdir -p ./dist/auth-portal
-          docker cp angular-container:/usr/share/nginx/html/auth-portal ./dist/auth-portal
-
-      - name: Stop and Remove Container
-        run: |
-          docker stop angular-container
-          docker rm angular-container
-
-      - name: Verify Build Artifacts
-        run: |
-          ls -lah ./dist/auth-portal
-
-      # Zip Build Artifacts (Only Latest)
-      - name: Zip Build Artifacts
-        run: |
-          cd ./dist
-          zip -r "latest-${BRANCH}.zip" auth-portal
-          ls -lah  # Verify zip files
-
-      # Authenticate with Google Cloud
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # Verify if zip file exists before uploading
-      - name: Check for zip file before upload
+      - name: Configure npm for Artifact Registry
         run: |
-          if [ ! -f "./dist/latest-${BRANCH}.zip" ]; then
-            echo "Error: ./dist/latest-${BRANCH}.zip not found!"
-            exit 1
-          fi
+          npm set @crucial-context-454812-v3:registry=https://${{ env.ARTIFACT_REGISTRY }}/
+          npm set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
 
-      # Upload the latest zip file (directly to GCS bucket, no staging folder)
-      - name: Upload Latest Zip File to GCS
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: ./dist/latest-${{ env.BRANCH }}.zip
-          destination: doqfy-auth-gateway-fronend-dist
-          gzip: false
+      - name: Install Frontend from Artifact Registry
+        run: npm install auth-frontend@latest
+
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      - name: Build Angular Project
+        run: npx ng build --configuration=production
+
+      - name: Upload to Google Cloud Storage
+        run: |
+          gsutil -m rsync -R dist/auth-frontend gs://${{ env.BUCKET_NAME }}
+          gsutil web set -m index.html -e 404.html gs://${{ env.BUCKET_NAME }}
+          gsutil iam ch allUsers:objectViewer gs://${{ env.BUCKET_NAME }}
