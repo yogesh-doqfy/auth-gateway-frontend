@@ -86,7 +86,3 @@ jobs:
       - name: Publish Latest Version
         if: env.SKIP_PUBLISH == 'false'
         run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
-
-      - name: Publish Versioned Package
-        if: env.SKIP_PUBLISH == 'false'
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }}
