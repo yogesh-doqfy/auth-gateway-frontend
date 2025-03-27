@@ -36,18 +36,16 @@ jobs:
 
       - name: Download Latest Package
         run: |
-          FILE_NAME="projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz"
-
-          echo "📥 Downloading $FILE_NAME"
-          gcloud artifacts files download $FILE_NAME \
+          mkdir -p downloaded_package
+          gcloud artifacts files download "projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz" \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --destination=auth-frontend.tgz
+            --destination=downloaded_package/
 
       - name: Extract Package
         run: |
-          mkdir dist
-          tar -xzf auth-frontend.tgz -C dist
+          mkdir -p dist
+          tar -xzf downloaded_package/auth-frontend-${LATEST_VERSION}.tgz -C dist
 
       - name: Upload `dist` to GCS
         run: gsutil -m rsync -r dist gs://your-bucket-name
