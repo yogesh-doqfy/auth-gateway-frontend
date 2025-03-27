@@ -47,8 +47,11 @@ jobs:
           npm config set @crucial-context-454812-v3:registry=https://${{ env.ARTIFACT_REGISTRY }}/
           npm config set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
 
+      - name: Temporarily Disable Private Flag
+        run: echo 'private=false' >> package.json
+
       - name: Publish Build Artifacts to Artifact Registry
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/
+        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --access restricted
 
       - name: Deploy (Optional)
         if: success()
