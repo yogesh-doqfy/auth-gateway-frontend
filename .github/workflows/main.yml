@@ -53,7 +53,7 @@ jobs:
       - name: Clear npm Cache
         run: npm cache clean --force
 
-      - name: Fetch Latest Version and Increment (Descending Order)
+      - name: Fetch Latest Version and Increment
         run: |
           PACKAGE_NAME=$(jq -r .name package.json)
           PUBLISHED_VERSIONS=$(npm show $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
@@ -66,7 +66,7 @@ jobs:
           else
             NEW_VERSION=$(echo $LATEST_VERSION | awk -F. '{print $1"."$2"."$3+1}')
           fi
-          jq --arg new_version "$NEW_VERSION" '.version=$new_version' package.json > temp.json && mv temp.json package.json
+          npm version $NEW_VERSION --no-git-tag-version
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Updated package.json version to $NEW_VERSION"
 
@@ -74,7 +74,7 @@ jobs:
         run: |
           PACKAGE_NAME=$(jq -r .name package.json)
           PUBLISHED_VERSIONS=$(npm show $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
-          if echo "$PUBLISHED_VERSIONS" | jq -e --arg NEW_VERSION "$NEW_VERSION" 'index($NEW_VERSION) != null' > /dev/null 2>&1; then
+          if echo "$PUBLISHED_VERSIONS" | grep -q "\"$NEW_VERSION\""; then
             echo "Version $NEW_VERSION already exists. Skipping publish step."
             echo "SKIP_PUBLISH=true" >> $GITHUB_ENV
           else
@@ -83,10 +83,10 @@ jobs:
 
       - name: Publish Latest Version
         if: env.SKIP_PUBLISH == 'false'
-        run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
+        run: |
+          echo "Publishing $NEW_VERSION..."
+          npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
 
       - name: Publish Versioned Package
         if: env.SKIP_PUBLISH == 'false'
         run: npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag version-${{ env.NEW_VERSION }}
-
-  
