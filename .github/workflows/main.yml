@@ -19,6 +19,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Clean Install Dependencies
+        run: |
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
+          npm install --legacy-peer-deps
+
+      - name: Build the Application
+        run: npm run build --prod
+
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -29,18 +43,10 @@ jobs:
           echo "//${{ env.REGION }}-npm.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
           cat ~/.npmrc
 
-      - name: Clean and Install Dependencies
+      - name: Deploy to GCP Cloud Run
         run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
-          npm install --legacy-peer-deps
-
-      - name: Verify Installed Packages
-        run: npm list --depth=0
-
-      - name: Build Angular App
-        run: npm run build --prod
-
-      - name: Deploy to GCP Storage
-        run: |
-          gsutil -m rsync -r dist gs://your-gcs-bucket-name
+          gcloud run deploy auth-gateway-frontend \
+            --image gcr.io/${{ env.PROJECT_ID }}/auth-gateway-frontend:latest \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --allow-unauthenticated
