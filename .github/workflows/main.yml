@@ -1,10 +1,10 @@
-name: Deploy Angular to GCS
+name: Deploy Angular from Artifact Registry to GCS
 
 on:
-  workflow_dispatch:  # Manually triggered
+  workflow_dispatch:
   push:
     branches:
-      - master  # Change this to your deployment branch if different
+      - main
 
 jobs:
   deploy:
@@ -20,30 +20,42 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Configure gcloud
-        run: |
-          gcloud config set project crucial-context-454812-v3
+        run: gcloud config set project crucial-context-454812-v3
 
-      - name: Download Angular `dist` from Artifact Registry
+      - name: Find Latest Version of `auth-frontend`
         run: |
-          gcloud artifacts files list \
+          LATEST_VERSION=$(gcloud artifacts versions list auth-frontend \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --package=my-angular-app --format="get(name)" | \
-          tail -n1 | xargs -I {} gcloud artifacts files download {} --destination=dist.zip
+            --sort-by="~CREATE_TIME" \
+            --limit=1 \
+            --format="value(name)")
 
-          unzip dist.zip -d dist
+          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+
+      - name: Download Latest Package
+        run: |
+          FILE_NAME="auth-frontend/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz"
+
+          echo "📥 Downloading $FILE_NAME"
+          gcloud artifacts files download $FILE_NAME \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --destination=auth-frontend.tgz
+
+      - name: Extract Package
+        run: |
+          mkdir dist
+          tar -xzf auth-frontend.tgz -C dist
 
       - name: Upload `dist` to GCS
-        run: |
-          gsutil -m rsync -r dist gs://your-bucket-name
+        run: gsutil -m rsync -r dist gs://your-bucket-name
 
       - name: Set Public Access (Optional)
-        run: |
-          gsutil iam ch allUsers:objectViewer gs://your-bucket-name
+        run: gsutil iam ch allUsers:objectViewer gs://your-bucket-name
 
       - name: Enable Website Hosting
-        run: |
-          gcloud storage buckets update gs://your-bucket-name --web-site-main-page index.html
+        run: gcloud storage buckets update gs://your-bucket-name --web-site-main-page index.html
 
       - name: Print Deployment URL
         run: echo "App deployed at https://storage.googleapis.com/your-bucket-name/index.html"
