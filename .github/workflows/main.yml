@@ -18,9 +18,17 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure npm for Artifact Registry
+      - name: Configure gcloud authentication
         run: |
-          gcloud auth print-access-token | npm login --registry=https://us-west2-npm.pkg.dev --scope=@crucial-context-454812-v3
+          gcloud auth configure-docker us-west2-docker.pkg.dev
+          gcloud auth application-default print-access-token > access-token.txt
+
+      - name: Set up NPM for Artifact Registry
+        run: |
+          npm config set '//us-west2-npm.pkg.dev/:_authToken' "$(gcloud auth print-access-token)"
+
+      - name: Verify authentication
+        run: gcloud auth list
 
       - name: Download artifact from Artifact Registry
         run: |
@@ -30,7 +38,7 @@ jobs:
                "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-0.0.9.tgz"
 
           if [ ! -s auth-frontend.tgz ]; then
-            echo "Error: Downloaded file is empty or corrupted."
+            echo "❌ Error: Downloaded file is empty or corrupted."
             exit 1
           fi
 
@@ -41,4 +49,4 @@ jobs:
 
       - name: Deploy (Customize this step)
         run: |
-          echo "Deploy steps go here..."
+          echo "🚀 Deploying the application..."
