@@ -40,11 +40,15 @@ jobs:
 
       - name: Download Latest Package
         run: |
-          gcloud artifacts files download \
-            --package=auth-frontend \
-            --version=${LATEST_VERSION} \
+          ARTIFACT_PATH="projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/files/auth-frontend-${LATEST_VERSION}.tgz"
+
+          gcloud artifacts files list \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
+            --package=auth-frontend \
+            --version=${LATEST_VERSION}
+
+          gcloud artifacts files download ${ARTIFACT_PATH} \
             --destination=downloaded_package/auth-frontend-${LATEST_VERSION}.tgz
 
       - name: Upload to Google Cloud Storage
