@@ -19,6 +19,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -29,8 +34,12 @@ jobs:
           echo "//${{ env.REGION }}-npm.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
           cat ~/.npmrc
 
-      - name: Install Dependencies
-        run: npm install --legacy-peer-deps
+      - name: Clean Install Dependencies
+        run: |
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
+          npm install --legacy-peer-deps
+          npm install webpack webpack-cli @angular-devkit/build-angular --save-dev
 
       - name: Build Angular App
         run: npm run build --prod
