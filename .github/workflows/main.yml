@@ -1,4 +1,4 @@
-name: Build and Deploy Angular App using Docker
+name: Build and Publish Angular App to Google Artifact Registry (NPM)
 
 on:
   push:
@@ -9,72 +9,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: "https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/"
 
-      - name: Extract Branch Name
-        id: get_branch
-        run: |
-          echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr -d '\n')" >> $GITHUB_ENV
+      - name: Install Dependencies
+        run: npm install --force
 
-      - name: Debug Branch
-        run: |
-          echo "Extracted Branch: $BRANCH"
+      - name: Build Angular App
+        run: npm run build --prod
 
-      - name: Build Docker Image
-        run: |
-          docker build -t my-angular-app:latest .
+      - name: Verify Build Output
+        run: ls -lah ./dist/auth-portal
 
-      - name: Run Docker Container
-        run: |
-          docker run -d --name angular-container my-angular-app:latest tail -f /dev/null
-
-      - name: Copy Build Artifacts from Container
-        run: |
-          mkdir -p ./dist/auth-portal
-          docker cp angular-container:/usr/share/nginx/html/auth-portal ./dist/auth-portal
-
-      - name: Stop and Remove Container
-        run: |
-          docker stop angular-container
-          docker rm angular-container
-
-      - name: Verify Build Artifacts
-        run: |
-          ls -lah ./dist/auth-portal
-
-      # Zip Build Artifacts (Only Latest)
-      - name: Zip Build Artifacts
-        run: |
-          cd ./dist
-          zip -r "latest-${BRANCH}.zip" auth-portal
-          ls -lah  # Verify zip files
-
-      # Authenticate with Google Cloud
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      # Verify if zip file exists before uploading
-      - name: Check for zip file before upload
+      - name: Configure NPM Authentication
         run: |
-          if [ ! -f "./dist/latest-${BRANCH}.zip" ]; then
-            echo "Error: ./dist/latest-${BRANCH}.zip not found!"
-            exit 1
-          fi
+          echo "//us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/:_authToken=$(gcloud auth print-access-token)" > ~/.npmrc
 
-      # Upload the latest zip file (directly to GCS bucket, no staging folder)
-      - name: Upload Latest Zip File to GCS
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: ./dist/latest-${{ env.BRANCH }}.zip
-          destination: doqfy-auth-gateway-fronend-dist
-          gzip: false
+      - name: Package and Publish to Google Artifact Registry (NPM)
+        run: |
+          mkdir -p ./package
+          cp -r ./dist/auth-portal ./package
+          echo '{ "name": "@crucial-context/auth-gateway-frontend", "version": "1.0.${{ github.run_number }}", "main": "index.html" }' > ./package/package.json
+          npm publish ./package --registry="https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend/"
