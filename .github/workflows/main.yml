@@ -24,34 +24,25 @@ jobs:
 
       - name: Find Latest Version of `auth-frontend`
         run: |
-          LATEST_VERSION=$(gcloud artifacts versions list auth-frontend \
+          LATEST_VERSION=$(gcloud artifacts versions list \
+            --package=auth-frontend \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
 
+          echo "LATEST_VERSION=$LATEST_VERSION"
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
       - name: Download Latest Package
         run: |
           mkdir -p downloaded_package
-          gcloud artifacts packages describe auth-frontend \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2
-
-          gcloud artifacts files list \
-            --package=auth-frontend \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2 \
-            --format="value(name)"
-
           gcloud artifacts files download \
-            --package=auth-frontend \
-            --version=${LATEST_VERSION} \
+            projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/${LATEST_VERSION}/auth-frontend-${LATEST_VERSION}.tgz \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --destination=downloaded_package/
+            --destination=downloaded_package/auth-frontend-${LATEST_VERSION}.tgz
 
       - name: Upload to Google Cloud Storage
         run: gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
