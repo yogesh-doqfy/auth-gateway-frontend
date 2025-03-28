@@ -51,7 +51,4 @@ jobs:
         run: ls -l downloaded_package/
 
       - name: Upload to Google Cloud Storage
-        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://your-bucket-name/
-
-      - name: Print Deployment URL
-        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
+        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
