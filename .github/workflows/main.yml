@@ -23,7 +23,6 @@ jobs:
         run: gcloud config set project crucial-context-454812-v3
 
       - name: Find Latest Version of `auth-frontend`
-        id: find_version
         run: |
           LATEST_VERSION=$(gcloud artifacts versions list \
             --package=auth-frontend \
@@ -38,28 +37,21 @@ jobs:
         run: mkdir -p downloaded_package
 
       - name: Debugging - Show Environment Variables
-        run: echo "Latest Version: ${{ env.LATEST_VERSION }}"
+        run: |
+          echo "Latest Version: $LATEST_VERSION"
 
       - name: Download Latest Package
         run: |
-          gcloud artifacts files download \
-            auth-frontend/${{ env.LATEST_VERSION }}/auth-frontend-${{ env.LATEST_VERSION }}.tgz \
+          gcloud artifacts files download auth-frontend/${{ env.LATEST_VERSION }}/auth-frontend-${{ env.LATEST_VERSION }}.tgz \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
             --destination=downloaded_package/
-
-      - name: Fix Filename Issues (Remove %2F Encoding)
-        run: |
-          FILE_PATH=$(ls downloaded_package/auth-frontend*)
-          mv "$FILE_PATH" "downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
 
       - name: Verify Downloaded Package
         run: ls -l downloaded_package/
 
       - name: Upload to Google Cloud Storage
-        run: |
-          gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://your-bucket-name/
+        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://your-bucket-name/
 
       - name: Print Deployment URL
-        run: |
-          echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
+        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
