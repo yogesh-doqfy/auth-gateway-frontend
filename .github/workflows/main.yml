@@ -31,9 +31,13 @@ jobs:
       - name: Install Dependencies
         run: npm install --force
 
+     
+
       - name: Install Angular CLI
         run: npm install -g @angular/cli
-
+      - name: Removing the dist file
+        run: rm -rf dist/
+        
       - name: Build Angular Project
         run: npx ng build --configuration=production
 
