@@ -42,12 +42,10 @@ jobs:
 
       - name: Download Latest Package
         run: |
-          gcloud artifacts files download \
+          gcloud artifacts files download auth-frontend/${{ env.LATEST_VERSION }}/auth-frontend-${{ env.LATEST_VERSION }}.tgz \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --package=auth-frontend \
-            --version=${{ env.LATEST_VERSION }} \
-            --destination=downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz
+            --destination=downloaded_package/
 
       - name: Verify Downloaded Package
         run: ls -l downloaded_package/
