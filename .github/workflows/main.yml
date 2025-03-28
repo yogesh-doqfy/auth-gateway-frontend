@@ -36,8 +36,10 @@ jobs:
       - name: Ensure Download Directory Exists
         run: mkdir -p downloaded_package
 
-      - name: Debug File Path
-        run: echo "Downloading from: projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/$LATEST_VERSION/files/auth-frontend-$LATEST_VERSION.tgz"
+      - name: Debugging - Show Environment Variables
+        run: |
+          echo "Latest Version: $LATEST_VERSION"
+          echo "File Path: projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/$LATEST_VERSION/files/auth-frontend-$LATEST_VERSION.tgz"
 
       - name: Download Latest Package
         run: |
