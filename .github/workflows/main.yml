@@ -31,39 +31,27 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
-
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
-      - name: Find Latest Package File
-        run: |
-          FILE_PATH=$(gcloud artifacts files list \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2 \
-            --package=auth-frontend \
-            --version=$LATEST_VERSION \
-            --format="value(name)" | grep '.tgz$')
-
-          echo "FILE_PATH=$FILE_PATH" >> $GITHUB_ENV
-
-      - name: Create Download Directory
+      - name: Ensure Download Directory Exists
         run: mkdir -p downloaded_package
+
+      - name: Debug File Path
+        run: echo "Downloading from: projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/$LATEST_VERSION/files/auth-frontend-$LATEST_VERSION.tgz"
 
       - name: Download Latest Package
         run: |
-          mkdir -p $(dirname "downloaded_package/auth-frontend-${LATEST_VERSION}.tgz")
-          gcloud artifacts files download "$FILE_PATH" \
+          gcloud artifacts files download \
+            projects/crucial-context-454812-v3/locations/us-west2/repositories/auth-gateway-frontend-cicd/packages/auth-frontend/versions/$LATEST_VERSION/files/auth-frontend-$LATEST_VERSION.tgz \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --destination="downloaded_package/auth-frontend-${LATEST_VERSION}.tgz"
+            --destination="downloaded_package/auth-frontend-$LATEST_VERSION.tgz"
 
-      - name: Extract the Package
-        run: |
-          mkdir -p extracted_package
-          tar -xzf downloaded_package/auth-frontend-${LATEST_VERSION}.tgz -C extracted_package
+      - name: Verify Downloaded Package
+        run: ls -l downloaded_package/
 
-      - name: Upload Extracted Files to GCS
-        run: |
-          gsutil -m rsync -r extracted_package/dist gs://your-bucket-name/
+      - name: Upload to Google Cloud Storage
+        run: gsutil cp downloaded_package/auth-frontend-${LATEST_VERSION}.tgz gs://your-bucket-name/
 
       - name: Print Deployment URL
-        run: echo "App deployed to https://storage.googleapis.com/your-bucket-name/index.html"
+        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${LATEST_VERSION}.tgz"
