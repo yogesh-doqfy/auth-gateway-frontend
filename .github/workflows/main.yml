@@ -62,9 +62,21 @@ jobs:
           tar -xzf downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz
 
 
-      - name: Verify Downloaded Package
-        run: ls -l downloaded_package/
+      - name: Extract Package
+        run: |
+          tar -xzf downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz -C downloaded_package/
+          ls -l downloaded_package/ # Check the extracted structure
+
+      - name: Locate Dist Folder
+        run: |
+          find downloaded_package -type d -name "dist" # Debugging to locate "dist" folder
 
       - name: Upload Dist Folder to Google Cloud Storage
         run: |
-          gsutil -m cp -r downloaded_package/dist/* gs://doqfy-auth-gateway-fronend-dist/
+          DIST_PATH=$(find downloaded_package -type d -name "dist")
+          if [ -d "$DIST_PATH" ]; then
+            gsutil -m cp -r $DIST_PATH/* gs://doqfy-auth-gateway-fronend-dist/
+          else
+            echo "Error: 'dist' folder not found!"
+            exit 1
+          fi
