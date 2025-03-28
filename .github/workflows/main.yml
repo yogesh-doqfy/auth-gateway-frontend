@@ -1,7 +1,10 @@
 name: Debug GCS Authentication
 
 on:
-  master  # Allows manual triggering
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+  push:
+    branches:
+      - master  # Runs on push to master
 
 jobs:
   debug:
