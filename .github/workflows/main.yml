@@ -1,7 +1,7 @@
 name: Debug GCS Authentication
 
 on:
-  workflow_dispatch  # Allows manual triggering
+  master  # Allows manual triggering
 
 jobs:
   debug:
