@@ -37,18 +37,28 @@ jobs:
         run: mkdir -p downloaded_package
 
       - name: Debugging - Show Environment Variables
-        run: |
-          echo "Latest Version: $LATEST_VERSION"
+        run: echo "Latest Version: $LATEST_VERSION"
 
       - name: Download Latest Package
         run: |
-          gcloud artifacts files download auth-frontend/${{ env.LATEST_VERSION }}/auth-frontend-${{ env.LATEST_VERSION }}.tgz \
+          gcloud artifacts files download \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
+            --package=auth-frontend \
+            --version=${{ env.LATEST_VERSION }} \
             --destination=downloaded_package/
 
-      - name: Verify Downloaded Package
+      - name: Rename Downloaded Package (Fix Encoding Issue)
+        run: |
+          for file in downloaded_package/*; do
+            mv "$file" "downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
+          done
+
+      - name: Verify Renamed Package
         run: ls -l downloaded_package/
 
       - name: Upload to Google Cloud Storage
-        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
+        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://your-bucket-name/
+
+      - name: Print Deployment URL
+        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
