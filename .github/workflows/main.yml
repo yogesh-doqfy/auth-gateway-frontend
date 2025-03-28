@@ -46,12 +46,13 @@ jobs:
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
             --destination=downloaded_package/
+      - name: Rename Downloaded Package
+        run: |
+          mv downloaded_package/auth-frontend%2F${{ env.LATEST_VERSION }}%2Fauth-frontend-${{ env.LATEST_VERSION }}.tgz \
+             downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz      
 
       - name: Verify Downloaded Package
         run: ls -l downloaded_package/
 
       - name: Upload to Google Cloud Storage
-        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://your-bucket-name/
-
-      - name: Print Deployment URL
-        run: echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
+        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
