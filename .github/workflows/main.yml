@@ -19,7 +19,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Set up Google Cloud SDK
+      - name: Set up Google Cloud SDK  # ✅ ADD THIS STEP
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: crucial-context-454812-v3  # Replace with your project ID
@@ -36,13 +36,14 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
-          echo "LATEST_VERSION=${LATEST_VERSION}" >> $GITHUB_ENV
+          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
-      - name: Ensure Download and Extract Directories Exist
-        run: mkdir -p downloaded_package extracted_package
+      - name: Ensure Download Directory Exists
+        run: mkdir -p downloaded_package
 
       - name: Debugging - Show Environment Variables
-        run: echo "Latest Version: ${{ env.LATEST_VERSION }}"
+        run: |
+          echo "Latest Version: $LATEST_VERSION"
 
       - name: Download Latest Package
         run: |
@@ -51,13 +52,21 @@ jobs:
             --location=us-west2 \
             --destination=downloaded_package/
 
+      - name: Rename Downloaded Package
+        run: |
+          mv downloaded_package/auth-frontend%2F${{ env.LATEST_VERSION }}%2Fauth-frontend-${{ env.LATEST_VERSION }}.tgz \
+             downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz     
+      
       - name: Extract Package
         run: |
           tar -xzf downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz -C extracted_package
 
-      - name: Verify Extracted Files
-        run: ls -l extracted_package/
 
-      - name: Upload Extracted Files to Google Cloud Storage
+      - name: Verify Downloaded Package
+        run: ls -l downloaded_package/
+
+      - name: Upload to Google Cloud Storage
         run: |
-          gsutil -m rsync -r extracted_package gs://doqfy-auth-gateway-fronend-dist/
+          gsutil -o "GSUtil:default_project_id=crucial-context-454812-v3" \
+                 -o "GSUtil:default_service_account=doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com" \
+                 cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
