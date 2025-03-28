@@ -55,4 +55,4 @@ jobs:
         run: ls -l downloaded_package/
 
       - name: Upload to Google Cloud Storage
-        run: gsutil cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
+        run: gsutil -o "GSUtil:default_project_id=crucial-context-454812-v3"        -o "GSUtil:default_service_account=doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com"        cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
