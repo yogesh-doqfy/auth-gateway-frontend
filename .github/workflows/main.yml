@@ -31,26 +31,29 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
-
+          
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+
+      - name: Find Latest Package File
+        run: |
+          FILE_PATH=$(gcloud artifacts files list \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --package=auth-frontend \
+            --version=$LATEST_VERSION \
+            --format="value(name)" | grep '.tgz$')
+
+          echo "FILE_PATH=$FILE_PATH" >> $GITHUB_ENV
 
       - name: Create Download Directory
         run: mkdir -p downloaded_package
 
       - name: Download Latest Package
         run: |
-          gcloud artifacts files list \
-            --package=auth-frontend \
+          gcloud artifacts files download "$FILE_PATH" \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --version=$LATEST_VERSION \
-            --format="value(name)" > package_file.txt
-
-          FILE_PATH=$(cat package_file.txt | grep '.tgz$')
-
-          gcloud artifacts files download "$FILE_PATH" \
-            --location=us-west2 \
-            --destination="downloaded_package/auth-frontend-$LATEST_VERSION.tgz"
+            --destination="downloaded_package/auth-frontend-${LATEST_VERSION}.tgz"
 
       - name: Extract the Package
         run: |
