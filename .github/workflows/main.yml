@@ -36,13 +36,13 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
-          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+          echo "LATEST_VERSION=${LATEST_VERSION}" >> $GITHUB_ENV
 
-      - name: Ensure Download Directory Exists
+      - name: Ensure Download and Extract Directories Exist
         run: mkdir -p downloaded_package extracted_package
 
       - name: Debugging - Show Environment Variables
-        run: echo "Latest Version: $LATEST_VERSION"
+        run: echo "Latest Version: ${{ env.LATEST_VERSION }}"
 
       - name: Download Latest Package
         run: |
