@@ -1,37 +1,67 @@
-name: Debug GCS Authentication
+name: Deploy Angular from Artifact Registry to GCS
 
 on:
-  workflow_dispatch:  # Allows manual triggering from GitHub UI
+  workflow_dispatch:
   push:
     branches:
-      - master  # Runs on push to master
+      - master
 
 jobs:
-  debug:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Set up Google Cloud SDK
+      - name: Set up Google Cloud SDK  # ✅ ADD THIS STEP
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: crucial-context-454812-v3  # Replace with your project ID
 
-      - name: Verify Authentication
-        run: |
-          echo "Checking authentication..."
-          gcloud auth list
-          gcloud config list
-          gcloud projects list
-          gsutil config list
+      - name: Configure gcloud
+        run: gcloud config set project crucial-context-454812-v3
 
-      - name: Check GCS Access
+      - name: Find Latest Version of `auth-frontend`
         run: |
-          echo "Listing buckets..."
-          gcloud storage buckets list
+          LATEST_VERSION=$(gcloud artifacts versions list \
+            --package=auth-frontend \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --sort-by="~CREATE_TIME" \
+            --limit=1 \
+            --format="value(name)")
+          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+
+      - name: Ensure Download Directory Exists
+        run: mkdir -p downloaded_package
+
+      - name: Debugging - Show Environment Variables
+        run: |
+          echo "Latest Version: $LATEST_VERSION"
+
+      - name: Download Latest Package
+        run: |
+          gcloud artifacts files download auth-frontend/${{ env.LATEST_VERSION }}/auth-frontend-${{ env.LATEST_VERSION }}.tgz \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --destination=downloaded_package/
+
+      - name: Rename Downloaded Package
+        run: |
+          mv downloaded_package/auth-frontend%2F${{ env.LATEST_VERSION }}%2Fauth-frontend-${{ env.LATEST_VERSION }}.tgz \
+             downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz      
+
+      - name: Verify Downloaded Package
+        run: ls -l downloaded_package/
+
+      - name: Upload to Google Cloud Storage
+        run: |
+          gsutil -o "GSUtil:default_project_id=crucial-context-454812-v3" \
+                 -o "GSUtil:default_service_account=doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com" \
+                 cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
