@@ -65,8 +65,6 @@ jobs:
       - name: Verify Downloaded Package
         run: ls -l downloaded_package/
 
-      - name: Upload to Google Cloud Storage
+      - name: Upload Dist Folder to Google Cloud Storage
         run: |
-          gsutil -o "GSUtil:default_project_id=crucial-context-454812-v3" \
-                 -o "GSUtil:default_service_account=doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com" \
-                 cp downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz gs://doqfy-auth-gateway-fronend-dist/
+          gsutil -m cp -r downloaded_package/dist/* gs://doqfy-auth-gateway-fronend-dist/
