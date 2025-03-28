@@ -48,9 +48,10 @@ jobs:
             --location=us-west2 \
             --destination=downloaded_package/
 
-      - name: Rename Downloaded File (Fix %2F Issue)
+      - name: Fix Filename Issues (Remove %2F Encoding)
         run: |
-          mv downloaded_package/auth-frontend* downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz
+          FILE_PATH=$(ls downloaded_package/auth-frontend*)
+          mv "$FILE_PATH" "downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
 
       - name: Verify Downloaded Package
         run: ls -l downloaded_package/
