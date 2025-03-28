@@ -75,7 +75,13 @@ jobs:
         run: |
           DIST_PATH=$(find downloaded_package -type d -name "dist")
           if [ -d "$DIST_PATH" ]; then
-            gsutil -m cp -r $DIST_PATH/* gs://doqfy-auth-gateway-fronend-dist/
+            AUTH_PORTAL_PATH="$DIST_PATH/auth-portal"
+            if [ -d "$AUTH_PORTAL_PATH" ]; then
+              gsutil -m cp -r $AUTH_PORTAL_PATH/* gs://doqfy-auth-gateway-fronend-dist/
+            else
+              echo "Error: 'auth-portal' folder not found inside 'dist'!"
+              exit 1
+            fi
           else
             echo "Error: 'dist' folder not found!"
             exit 1
