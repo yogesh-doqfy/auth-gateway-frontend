@@ -59,7 +59,7 @@ jobs:
       
       - name: Extract Package
         run: |
-          tar -xzf downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz -C extracted_package
+          tar -xzf downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz
 
 
       - name: Verify Downloaded Package
