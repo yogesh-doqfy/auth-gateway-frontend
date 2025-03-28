@@ -32,7 +32,14 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
+
+          if [[ -z "$LATEST_VERSION" ]]; then
+            echo "ERROR: No package versions found!" >&2
+            exit 1
+          fi
+
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+          echo "Latest package version: $LATEST_VERSION"
 
       - name: Ensure Download Directory Exists
         run: mkdir -p downloaded_package
@@ -48,10 +55,19 @@ jobs:
             --location=us-west2 \
             --destination=downloaded_package/
 
-      - name: Fix Filename Issues (Remove %2F Encoding)
+      - name: Fix Filename Issues (Handle Encoded Names)
         run: |
-          FILE_PATH=$(ls downloaded_package/auth-frontend*)
-          mv "$FILE_PATH" "downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
+          FILE_PATH=$(find downloaded_package -type f -name "auth-frontend*")
+          
+          if [[ -z "$FILE_PATH" ]]; then
+            echo "ERROR: Downloaded file not found!" >&2
+            exit 1
+          fi
+
+          TARGET_PATH="downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
+          mv "$FILE_PATH" "$TARGET_PATH"
+
+          echo "File renamed to: $TARGET_PATH"
 
       - name: Verify Downloaded Package
         run: ls -l downloaded_package/
@@ -62,4 +78,5 @@ jobs:
 
       - name: Print Deployment URL
         run: |
-          echo "App package uploaded to https://storage.googleapis.com/your-bucket-name/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
+          echo "✅ App package uploaded successfully!"
+          echo "🔗 Download URL: https://storage.googleapis.com/your-bucket-name/auth-frontend-${{ env.LATEST_VERSION }}.tgz"
