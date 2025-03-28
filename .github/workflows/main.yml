@@ -31,7 +31,7 @@ jobs:
             --sort-by="~CREATE_TIME" \
             --limit=1 \
             --format="value(name)")
-          
+
           echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
 
       - name: Find Latest Package File
@@ -50,6 +50,7 @@ jobs:
 
       - name: Download Latest Package
         run: |
+          mkdir -p $(dirname "downloaded_package/auth-frontend-${LATEST_VERSION}.tgz")
           gcloud artifacts files download "$FILE_PATH" \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
