@@ -64,19 +64,18 @@ jobs:
           PUBLISHED_VERSIONS=$(npm view $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
           echo "Published versions from registry: $PUBLISHED_VERSIONS"
 
-          if [[ "$PUBLISHED_VERSIONS" == "[]" ]]; then
+          if [[ "$PUBLISHED_VERSIONS" == "[]" || -z "$PUBLISHED_VERSIONS" ]]; then
             LATEST_VERSION="0.0.0"
           else
-            LATEST_VERSION=$(echo "$PUBLISHED_VERSIONS" | jq -r 'map(select(test("^0\\.0\\.[0-9]+$"))) | sort_by(tonumber) | .[-1]')
+            LATEST_VERSION=$(echo "$PUBLISHED_VERSIONS" | jq -r 'map(select(test("^0\\.0\\.[0-9]+$")) | sub("0\\.0\\."; "")) | map(tonumber) | max | "0.0.\(. + 1)"')
           fi
 
           echo "Latest detected version: $LATEST_VERSION"
 
-          if [[ "$LATEST_VERSION" == "null" || -z "$LATEST_VERSION" ]]; then
+          if [[ -z "$LATEST_VERSION" ]]; then
             NEW_VERSION="0.0.1"
           else
-            NEW_PATCH=$(echo $LATEST_VERSION | awk -F. '{print $3+1}')
-            NEW_VERSION="0.0.$NEW_PATCH"
+            NEW_VERSION=$LATEST_VERSION
           fi
 
           echo "New version to be published: $NEW_VERSION"
