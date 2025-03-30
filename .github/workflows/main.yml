@@ -62,21 +62,20 @@ jobs:
           echo "Fetching versions for $PACKAGE_NAME from registry..."
 
           PUBLISHED_VERSIONS=$(npm view $PACKAGE_NAME versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
-          echo "Published versions from registry: $PUBLISHED_VERSIONS"
 
-          if [[ "$PUBLISHED_VERSIONS" == "[]" || -z "$PUBLISHED_VERSIONS" ]]; then
+          # Convert JSON list to newline-separated versions, remove brackets and quotes
+          PUBLISHED_VERSIONS=$(echo "$PUBLISHED_VERSIONS" | tr -d '[]"' | tr ',' '\n')
+
+          # Check if we got versions or need to start from 0.0.1
+          if [[ -z "$PUBLISHED_VERSIONS" ]]; then
             LATEST_VERSION="0.0.0"
           else
-            LATEST_VERSION=$(echo "$PUBLISHED_VERSIONS" | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))) | map(split("\\.") | map(tonumber)) | sort | last | [.[] | tostring] | join(".")')
+            LATEST_VERSION=$(echo "$PUBLISHED_VERSIONS" | sort -V | tail -n 1)
           fi
 
-          echo "Latest detected version: $LATEST_VERSION"
-
-          if [[ -z "$LATEST_VERSION" ]]; then
-            NEW_VERSION="0.0.1"
-          else
-            NEW_VERSION=$(echo "$LATEST_VERSION" | awk -F. '{print $1"."$2"."$3+1}')
-          fi
+          # Extract and increment the patch version (0.0.X)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
+          NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
 
           echo "New version to be published: $NEW_VERSION"
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
