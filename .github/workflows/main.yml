@@ -40,10 +40,11 @@ jobs:
       - name: Build Angular Project
         run: npx ng build --configuration=production
 
-      - name: Authenticate with Google Cloud
+      - name: Authenticate with Google Cloud using Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: "projects/297178011153/locations/global/workloadIdentityPools/github-pool/subject/SUBJECT_ATTRIBUTE_VALUE "
+          service_account: "doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com"
 
       - name: Configure npm for Artifact Registry
         run: |
