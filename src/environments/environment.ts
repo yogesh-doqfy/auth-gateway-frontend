@@ -19,11 +19,11 @@ function determineApiUrl() {
   const host = window.location.host;
   const apiUrls:any = {
     'beta1-auth-gateway.doqfy.in': 'https://beta1-auth-gateway-api.doqfy.in',
-    'beta2-auth-gateway.doqfy.in': 'https://beta2-auth-gateway-api.doqfy.in',
+    'beta2-auth-gateway.doqfy.in': 'https://beta2-auth-gateway-api1.doqfy.in',
     'uat-gateway.doqfy.in': 'https://uat-gateway-api.doqfy.in',
   };
 
-  const apiUrl = apiUrls[host] || 'https://beta2-auth-gateway-api.doqfy.in';
+  const apiUrl = apiUrls[host] || 'https://beta2-auth-gateway-api1.doqfy.in';
 
   return apiUrl;
 }
