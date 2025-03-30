@@ -1,48 +1,80 @@
-name: Publish NPM Package
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main  # Change to the branch you want to trigger the workflow
+      - staging
+  pull_request:
+    branches:
+      - staging
 
 jobs:
-  publish:
+  build-push-artifactory:
+    name: Build and Push to Artifact Registry
     runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: crucial-context-454812-v3
+      REPO_NAME: auth-final
+      REGION: us-west2
+      ARTIFACT_REGISTRY: us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-final
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-          registry-url: "https://npm.pkg.github.com"
+          cache: 'npm'
 
-      - name: Authenticate with NPM Registry
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: Install Dependencies
+        run: npm install --force
+
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      - name: Remove Existing Build Directory
+        run: rm -rf dist/
+
+      - name: Build Angular Project
+        run: npx ng build --configuration=production
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure npm for Artifact Registry
+        run: |
+          npm set @${{ env.PROJECT_ID }}:registry=https://${{ env.ARTIFACT_REGISTRY }}/
+          npm set //${{ env.ARTIFACT_REGISTRY }}/:_authToken="$(gcloud auth print-access-token)"
+
+      - name: Temporarily Disable Private Flag in `package.json`
+        run: jq 'del(.private)' package.json > temp.json && mv temp.json package.json
+
+      - name: Clear npm Cache
+        run: npm cache clean --force
 
       - name: Fetch Latest Version and Increment
         run: |
           PACKAGE_NAME=$(jq -r .name package.json)
           echo "Fetching versions for $PACKAGE_NAME from registry..."
 
-          # Fetch versions, but handle errors gracefully
-          PUBLISHED_VERSIONS=$(npm view "$PACKAGE_NAME" versions --json --registry=https://npm.pkg.github.com/ 2>/dev/null || echo "[]")
+          # Get existing versions or fallback to empty array
+          PUBLISHED_VERSIONS=$(npm view "$PACKAGE_NAME" versions --json --registry=https://${{ env.ARTIFACT_REGISTRY }}/ 2>/dev/null || echo "[]")
 
-          # Check if response contains an error (e.g., package not found)
-          if [[ "$PUBLISHED_VERSIONS" =~ "code" ]]; then
-            echo "Package not found in registry. Starting at version 0.0.1"
+          # Handle errors from npm view
+          if [[ "$PUBLISHED_VERSIONS" =~ "E404" || "$PUBLISHED_VERSIONS" == "[]" || -z "$PUBLISHED_VERSIONS" ]]; then
+            echo "No existing versions found. Starting at 0.0.1"
             NEW_VERSION="0.0.1"
           else
-            # Parse versions correctly
-            VALID_VERSIONS=$(echo "$PUBLISHED_VERSIONS" | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$")))')
+            LATEST_VERSION=$(echo "$PUBLISHED_VERSIONS" | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))) | map(split(".") | map(tonumber)) | sort | last | [.[] | tostring] | join(".")')
 
-            if [[ -z "$VALID_VERSIONS" || "$VALID_VERSIONS" == "[]" ]]; then
-              echo "No valid versions found. Starting at version 0.0.1"
+            if [[ -z "$LATEST_VERSION" || "$LATEST_VERSION" == "null" ]]; then
+              echo "No valid versions found. Starting at 0.0.1"
               NEW_VERSION="0.0.1"
             else
-              LATEST_VERSION=$(echo "$VALID_VERSIONS" | jq -r 'map(split(".") | map(tonumber)) | sort | last | [.[] | tostring] | join(".")')
               IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
               NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
             fi
@@ -54,17 +86,7 @@ jobs:
           npm version "$NEW_VERSION" --no-git-tag-version
           echo "Updated package.json version to $NEW_VERSION"
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Package (if applicable)
-        run: npm run build || echo "No build step found, skipping..."
-
-      - name: Publish to NPM Registry
-        run: npm publish --registry=https://npm.pkg.github.com/
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Clean up
-        run: rm -f ~/.npmrc
-
+      - name: Publish Latest Version to Artifact Registry
+        run: |
+          echo "Publishing version: $NEW_VERSION"
+          npm publish --registry=https://${{ env.ARTIFACT_REGISTRY }}/ --tag latest
