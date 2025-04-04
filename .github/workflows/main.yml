@@ -44,7 +44,7 @@ jobs:
             SELECTED_VERSION=$(gcloud artifacts versions list \
               --repository=auth-gateway-frontend-cicd \
               --location=us-west2 \
-              --package=frontend \
+              --package=auth-frontend \
               --project=crucial-context-454812-v3 \
               --sort-by=~CREATE_TIME \
               --limit=1 \
