@@ -8,7 +8,7 @@ on:
         required: false
   push:
     branches:
-      - master
+      - server
 
 jobs:
   deploy:
@@ -99,18 +99,21 @@ jobs:
           fi
           echo "DIST_PATH=$DIST_PATH" >> $GITHUB_ENV
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Upload Dist Folder to AWS S3
+      - name: Add PEM Key for SSH
         run: |
-          if [ -d "${{ env.DIST_PATH }}/auth-portal" ]; then
-            aws s3 sync "${{ env.DIST_PATH }}/auth-portal" s3://doqfy-sample-check/ --delete
-          else
-            echo "Error: 'auth-portal' folder not found inside 'dist'!"
-            exit 1
-          fi
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCE_SSH_PRIVATE_KEY }}" > ~/.ssh/auth-gateway.pem
+          chmod 600 ~/.ssh/auth-gateway.pem
+
+      - name: Copy Files to Google VM
+        run: |
+          scp -i ~/.ssh/auth-gateway.pem -o StrictHostKeyChecking=no -r "${{ env.DIST_PATH }}/auth-portal" Rwoqbanuswoambn@35.207.203.13:/tmp/frontend-${{ env.SELECTED_VERSION }}
+
+      - name: Deploy Files on Google VM
+        run: |
+          ssh -i ~/.ssh/auth-gateway.pem -o StrictHostKeyChecking=no Rwoqbanuswoambn@35.207.203.13 << 'EOF'
+            sudo rm -rf /var/www/html/*
+            sudo cp -r /tmp/frontend-${{ env.SELECTED_VERSION }}/* /var/www/html/
+            sudo rm -rf /tmp/frontend-${{ env.SELECTED_VERSION }}
+            echo "✅ Deployment complete."
+          EOF
