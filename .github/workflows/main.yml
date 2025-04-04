@@ -14,7 +14,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # Required for Workload Identity Federation
+      id-token: write
       contents: read
 
     steps:
@@ -26,15 +26,15 @@ jobs:
         with:
           workload_identity_provider: "projects/297178011153/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
           service_account: "doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com"
-          project_id: "crucial-context-454812"
+          project_id: "crucial-context-454812-v3"
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: crucial-context-454812
+          project_id: crucial-context-454812-v3
 
       - name: Configure gcloud
-        run: gcloud config set project crucial-context-454812
+        run: gcloud config set project crucial-context-454812-v3
 
       - name: Determine Deployment Version
         run: |
@@ -45,6 +45,7 @@ jobs:
               --repository=auth-gateway-frontend-cicd \
               --location=us-west2 \
               --package=frontend \
+              --project=crucial-context-454812-v3 \
               --sort-by=~CREATE_TIME \
               --limit=1 \
               --format='value(name)')
@@ -61,6 +62,7 @@ jobs:
             --location=us-west2 \
             --package=frontend \
             --version=$SELECTED_VERSION \
+            --project=crucial-context-454812-v3 \
             --sort-by=~CREATE_TIME \
             --limit=1 \
             --format='value(name)')
@@ -71,6 +73,7 @@ jobs:
           gcloud artifacts files download "$SELECTED_FILE" \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
+            --project=crucial-context-454812-v3 \
             --destination=downloaded_package/
 
       - name: Rename Downloaded Package
@@ -85,7 +88,7 @@ jobs:
       - name: Extract Package
         run: |
           tar -xzf downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz -C downloaded_package/
-          ls -l downloaded_package/ # Check the extracted structure
+          ls -l downloaded_package/
 
       - name: Locate Dist Folder
         run: |
@@ -101,7 +104,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Change to your AWS region
+          aws-region: us-east-1
 
       - name: Upload Dist Folder to AWS S3
         run: |
