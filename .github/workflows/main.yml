@@ -21,30 +21,78 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Deployment Version
+      - name: Authenticate with Google Cloud using Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/297178011153/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com"
+          project_id: "crucial-context-454812-v3"
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: crucial-context-454812-v3
+
+      - name: Configure gcloud
+        run: gcloud config set project crucial-context-454812-v3
+
+      - name: Determine Deployment Version
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
             SELECTED_VERSION="${{ github.event.inputs.version }}"
           else
-            SELECTED_VERSION="0.0.6"  # default fallback
+            SELECTED_VERSION=$(gcloud artifacts versions list \
+              --repository=auth-gateway-frontend-cicd \
+              --location=us-west2 \
+              --package=frontend \
+              --project=crucial-context-454812-v3 \
+              --sort-by=~CREATE_TIME \
+              --limit=1 \
+              --format='value(name)')
           fi
           echo "SELECTED_VERSION=$SELECTED_VERSION" >> $GITHUB_ENV
 
-      - name: Download tarball from Artifact Registry NPM
-        run: |
-          mkdir -p downloaded_package
-          TAR_URL="https://us-west2-npm.pkg.dev/crucial-context-454812-v3/auth-gateway-frontend-cicd/auth-frontend/-/auth-frontend-${{ env.SELECTED_VERSION }}.tgz"
-          echo "Downloading: $TAR_URL"
-          curl -L -o downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz "$TAR_URL"
+      - name: Ensure Download Directory Exists
+        run: mkdir -p downloaded_package
 
-      - name: Extract tarball
+      - name: Find Package File for Selected Version
+        run: |
+          SELECTED_FILE=$(gcloud artifacts files list \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --package=frontend \
+            --version=$SELECTED_VERSION \
+            --project=crucial-context-454812-v3 \
+            --sort-by=~CREATE_TIME \
+            --limit=1 \
+            --format='value(name)')
+          echo "SELECTED_FILE=$SELECTED_FILE" >> $GITHUB_ENV
+
+      - name: Download Selected Package
+        run: |
+          gcloud artifacts files download "$SELECTED_FILE" \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
+            --project=crucial-context-454812-v3 \
+            --destination=downloaded_package/
+
+      - name: Rename Downloaded Package
+        run: |
+          ACTUAL_FILE=$(ls downloaded_package/ | grep "$(basename "$SELECTED_FILE" | sed 's/%2F/\//g')")
+          if [ -z "$ACTUAL_FILE" ]; then
+            echo "Error: Downloaded file not found!"
+            exit 1
+          fi
+          mv "downloaded_package/$ACTUAL_FILE" "downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz"
+
+      - name: Extract Package
         run: |
           tar -xzf downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz -C downloaded_package/
-          ls -l downloaded_package/package
+          ls -l downloaded_package/
 
-      - name: Locate dist folder
+      - name: Locate Dist Folder
         run: |
-          DIST_PATH=$(find downloaded_package/package -type d -name "dist" -print -quit)
+          DIST_PATH=$(find downloaded_package -type d -name "dist" -print -quit)
           if [ -z "$DIST_PATH" ]; then
             echo "Error: 'dist' folder not found!"
             exit 1
@@ -58,11 +106,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Upload dist/auth-portal to S3
+      - name: Upload Dist Folder to AWS S3
         run: |
           if [ -d "${{ env.DIST_PATH }}/auth-portal" ]; then
             aws s3 sync "${{ env.DIST_PATH }}/auth-portal" s3://doqfy-sample-check/ --delete
           else
-            echo "Error: 'auth-portal' folder not found inside dist!"
+            echo "Error: 'auth-portal' folder not found inside 'dist'!"
             exit 1
           fi
