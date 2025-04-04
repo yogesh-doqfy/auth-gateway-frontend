@@ -57,8 +57,8 @@ jobs:
       - name: Find Package File for Selected Version
         run: |
           SELECTED_FILE=$(gcloud artifacts files list \
-            --repository=auth-gateway-frontend \
-            --location=asia-south1 \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
             --package=frontend \
             --version=$SELECTED_VERSION \
             --sort-by=~CREATE_TIME \
@@ -69,8 +69,8 @@ jobs:
       - name: Download Selected Package
         run: |
           gcloud artifacts files download "$SELECTED_FILE" \
-            --repository=auth-gateway-frontend \
-            --location=asia-south1 \
+            --repository=auth-gateway-frontend-cicd \
+            --location=us-west2 \
             --destination=downloaded_package/
 
       - name: Rename Downloaded Package
