@@ -2,85 +2,112 @@ name: Deploy Angular from Artifact Registry to S3
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Enter the version to deploy (leave empty for latest)"
+        required: false
   push:
     branches:
-      - master
+      - cicd-impl
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for Workload Identity Federation
+      contents: read
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Authenticate with Google Cloud
+      - name: Authenticate with Google Cloud using Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: "projects/910750959879/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "migration@silent-snow-331616.iam.gserviceaccount.com"
+          project_id: "silent-snow-331616"
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: crucial-context-454812-v3  # Replace with your project ID
+          project_id: silent-snow-331616
 
       - name: Configure gcloud
-        run: gcloud config set project crucial-context-454812-v3
+        run: gcloud config set project silent-snow-331616
 
-      - name: Find Latest Version of `auth-frontend`
+      - name: Determine Deployment Version
         run: |
-          LATEST_VERSION=$(gcloud artifacts versions list \
-            --package=auth-frontend \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2 \
-            --sort-by="~CREATE_TIME" \
-            --limit=1 \
-            --format="value(name)")
-          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            SELECTED_VERSION="${{ github.event.inputs.version }}"
+          else
+            SELECTED_VERSION=$(gcloud artifacts versions list \
+              --repository=auth-gateway-frontend \
+              --location=asia-south1 \
+              --package=frontend \
+              --sort-by=~CREATE_TIME \
+              --limit=1 \
+              --format='value(name)')
+          fi
+          echo "SELECTED_VERSION=$SELECTED_VERSION" >> $GITHUB_ENV
 
       - name: Ensure Download Directory Exists
         run: mkdir -p downloaded_package
 
-      - name: Download Latest Package
+      - name: Find Package File for Selected Version
         run: |
-          gcloud artifacts files download auth-frontend/${{ env.LATEST_VERSION }}/auth-frontend-${{ env.LATEST_VERSION }}.tgz \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2 \
+          SELECTED_FILE=$(gcloud artifacts files list \
+            --repository=auth-gateway-frontend \
+            --location=asia-south1 \
+            --package=frontend \
+            --version=$SELECTED_VERSION \
+            --sort-by=~CREATE_TIME \
+            --limit=1 \
+            --format='value(name)')
+          echo "SELECTED_FILE=$SELECTED_FILE" >> $GITHUB_ENV
+
+      - name: Download Selected Package
+        run: |
+          gcloud artifacts files download "$SELECTED_FILE" \
+            --repository=auth-gateway-frontend \
+            --location=asia-south1 \
             --destination=downloaded_package/
 
       - name: Rename Downloaded Package
         run: |
-          mv downloaded_package/auth-frontend%2F${{ env.LATEST_VERSION }}%2Fauth-frontend-${{ env.LATEST_VERSION }}.tgz \
-             downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz     
+          ACTUAL_FILE=$(ls downloaded_package/ | grep "$(basename "$SELECTED_FILE" | sed 's/%2F/\//g')")
+          if [ -z "$ACTUAL_FILE" ]; then
+            echo "Error: Downloaded file not found!"
+            exit 1
+          fi
+          mv "downloaded_package/$ACTUAL_FILE" "downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz"
 
       - name: Extract Package
         run: |
-          tar -xzf downloaded_package/auth-frontend-${{ env.LATEST_VERSION }}.tgz -C downloaded_package/
+          tar -xzf downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz -C downloaded_package/
           ls -l downloaded_package/ # Check the extracted structure
 
       - name: Locate Dist Folder
         run: |
-          find downloaded_package -type d -name "dist" # Debugging to locate "dist" folder
+          DIST_PATH=$(find downloaded_package -type d -name "dist" -print -quit)
+          if [ -z "$DIST_PATH" ]; then
+            echo "Error: 'dist' folder not found!"
+            exit 1
+          fi
+          echo "DIST_PATH=$DIST_PATH" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2  # Change to your AWS region
+          aws-region: us-east-1  # Change to your AWS region
 
       - name: Upload Dist Folder to AWS S3
         run: |
-          DIST_PATH=$(find downloaded_package -type d -name "dist")
-          if [ -d "$DIST_PATH" ]; then
-            AUTH_PORTAL_PATH="$DIST_PATH/auth-portal"
-            if [ -d "$AUTH_PORTAL_PATH" ]; then
-              aws s3 sync $AUTH_PORTAL_PATH s3://doqfy-sample-check/ --delete
-            else
-              echo "Error: 'auth-portal' folder not found inside 'dist'!"
-              exit 1
-            fi
+          if [ -d "${{ env.DIST_PATH }}/auth-portal" ]; then
+            aws s3 sync "${{ env.DIST_PATH }}/auth-portal" s3://doqfy-sample-check/ --delete
           else
-            echo "Error: 'dist' folder not found!"
+            echo "Error: 'auth-portal' folder not found inside 'dist'!"
             exit 1
           fi
