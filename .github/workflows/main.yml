@@ -24,17 +24,17 @@ jobs:
       - name: Authenticate with Google Cloud using Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: "projects/910750959879/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
-          service_account: "migration@silent-snow-331616.iam.gserviceaccount.com"
-          project_id: "silent-snow-331616"
+          workload_identity_provider: "projects/297178011153/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com"
+          project_id: "crucial-context-454812"
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: silent-snow-331616
+          project_id: crucial-context-454812
 
       - name: Configure gcloud
-        run: gcloud config set project silent-snow-331616
+        run: gcloud config set project crucial-context-454812
 
       - name: Determine Deployment Version
         run: |
@@ -42,8 +42,8 @@ jobs:
             SELECTED_VERSION="${{ github.event.inputs.version }}"
           else
             SELECTED_VERSION=$(gcloud artifacts versions list \
-              --repository=auth-gateway-frontend \
-              --location=asia-south1 \
+              --repository=auth-gateway-frontend-cicd \
+              --location=us-west2 \
               --package=frontend \
               --sort-by=~CREATE_TIME \
               --limit=1 \
