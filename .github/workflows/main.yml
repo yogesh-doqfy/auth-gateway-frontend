@@ -60,7 +60,7 @@ jobs:
           SELECTED_FILE=$(gcloud artifacts files list \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --package=frontend \
+            --package=auth-frontend \
             --version=$SELECTED_VERSION \
             --project=crucial-context-454812-v3 \
             --sort-by=~CREATE_TIME \
