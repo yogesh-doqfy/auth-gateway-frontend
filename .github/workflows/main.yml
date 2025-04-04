@@ -1,4 +1,4 @@
-name: Deploy Angular from Artifact Registry to S3
+name: Deploy Angular from Artifact Registry to Google VM
 
 on:
   workflow_dispatch:
@@ -99,21 +99,24 @@ jobs:
           fi
           echo "DIST_PATH=$DIST_PATH" >> $GITHUB_ENV
 
-      - name: Add PEM Key for SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GCE_SSH_PRIVATE_KEY }}" > ~/.ssh/auth-gateway.pem
-          chmod 600 ~/.ssh/auth-gateway.pem
+      - name: Upload frontend to Google VM via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "${{ env.DIST_PATH }}/auth-portal"
+          target: "/tmp/frontend-${{ env.SELECTED_VERSION }}"
 
-      - name: Copy Files to Google VM
-        run: |
-          scp -i ~/.ssh/auth-gateway.pem -o StrictHostKeyChecking=no -r "${{ env.DIST_PATH }}/auth-portal" Rwoqbanuswoambn@35.207.203.13:/tmp/frontend-${{ env.SELECTED_VERSION }}
-
-      - name: Deploy Files on Google VM
-        run: |
-          ssh -i ~/.ssh/auth-gateway.pem -o StrictHostKeyChecking=no Rwoqbanuswoambn@35.207.203.13 << 'EOF'
+      - name: Move frontend to web directory and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
             sudo rm -rf /var/www/html/*
             sudo cp -r /tmp/frontend-${{ env.SELECTED_VERSION }}/* /var/www/html/
             sudo rm -rf /tmp/frontend-${{ env.SELECTED_VERSION }}
+            sudo systemctl restart nginx || echo "Nginx not running or not needed."
             echo "✅ Deployment complete."
-          EOF
