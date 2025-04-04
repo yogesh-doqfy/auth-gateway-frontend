@@ -18,25 +18,22 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout Repository
+      - name: 🧾 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Authenticate with Google Cloud using Workload Identity Federation
+      - name: 🔐 Authenticate with Google Cloud (Workload Identity Federation)
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: "projects/297178011153/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
           service_account: "doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com"
           project_id: "crucial-context-454812-v3"
 
-      - name: Set up Google Cloud SDK
+      - name: ⚙️ Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: crucial-context-454812-v3
 
-      - name: Configure gcloud
-        run: gcloud config set project crucial-context-454812-v3
-
-      - name: Determine Deployment Version
+      - name: 📌 Select Deployment Version
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
             SELECTED_VERSION="${{ github.event.inputs.version }}"
@@ -45,78 +42,78 @@ jobs:
               --repository=auth-gateway-frontend-cicd \
               --location=us-west2 \
               --package=auth-frontend \
-              --project=crucial-context-454812-v3 \
               --sort-by=~CREATE_TIME \
               --limit=1 \
               --format='value(name)')
           fi
           echo "SELECTED_VERSION=$SELECTED_VERSION" >> $GITHUB_ENV
 
-      - name: Ensure Download Directory Exists
+      - name: 📁 Create Download Directory
         run: mkdir -p downloaded_package
 
-      - name: Find Package File for Selected Version
+      - name: 🔎 Get Package File from Artifact Registry
         run: |
           SELECTED_FILE=$(gcloud artifacts files list \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
             --package=auth-frontend \
             --version=$SELECTED_VERSION \
-            --project=crucial-context-454812-v3 \
             --sort-by=~CREATE_TIME \
             --limit=1 \
             --format='value(name)')
           echo "SELECTED_FILE=$SELECTED_FILE" >> $GITHUB_ENV
 
-      - name: Download Selected Package
+      - name: 📥 Download Package File
         run: |
           gcloud artifacts files download "$SELECTED_FILE" \
             --repository=auth-gateway-frontend-cicd \
             --location=us-west2 \
-            --project=crucial-context-454812-v3 \
-            --destination=downloaded_package/
+            --destination=downloaded_package/ \
+            --project=crucial-context-454812-v3
 
-      - name: Rename Downloaded Package
+      - name: 🏷️ Rename Downloaded Package
         run: |
-          ACTUAL_FILE=$(ls downloaded_package/ | grep "$(basename "$SELECTED_FILE" | sed 's/%2F/\//g')")
+          FILE_NAME=$(basename "$SELECTED_FILE")
+          ACTUAL_FILE=$(ls downloaded_package/ | grep "${FILE_NAME}" || true)
           if [ -z "$ACTUAL_FILE" ]; then
-            echo "Error: Downloaded file not found!"
+            echo "❌ Error: Downloaded file not found!"
             exit 1
           fi
           mv "downloaded_package/$ACTUAL_FILE" "downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz"
 
-      - name: Extract Package
+      - name: 📦 Extract .tgz Package
         run: |
           tar -xzf downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz -C downloaded_package/
-          ls -l downloaded_package/
+          ls -la downloaded_package/
 
-      - name: Locate Dist Folder
+      - name: 🔍 Locate dist/auth-portal Folder
         run: |
-          DIST_PATH=$(find downloaded_package -type d -name "dist" -print -quit)
+          DIST_PATH=$(find downloaded_package -type d -name "auth-portal" -print -quit)
           if [ -z "$DIST_PATH" ]; then
-            echo "Error: 'dist' folder not found!"
+            echo "❌ Error: 'auth-portal' folder not found!"
             exit 1
           fi
           echo "DIST_PATH=$DIST_PATH" >> $GITHUB_ENV
 
-      - name: Upload frontend to Google VM via SCP
+      - name: 🚀 Upload to Google VM via SCP
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "${{ env.DIST_PATH }}/auth-portal"
+          source: "${{ env.DIST_PATH }}"
           target: "/tmp/frontend-${{ env.SELECTED_VERSION }}"
 
-      - name: Move frontend to web directory and deploy
+      - name: 🔧 Deploy to /var/www/html on VM
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "🔁 Replacing current frontend with version: ${{ env.SELECTED_VERSION }}"
             sudo rm -rf /var/www/html/*
             sudo cp -r /tmp/frontend-${{ env.SELECTED_VERSION }}/* /var/www/html/
             sudo rm -rf /tmp/frontend-${{ env.SELECTED_VERSION }}
             sudo systemctl restart nginx || echo "Nginx not running or not needed."
-            echo "✅ Deployment complete."
+            echo "✅ Frontend version ${{ env.SELECTED_VERSION }} deployed successfully."
