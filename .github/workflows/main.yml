@@ -1,14 +1,17 @@
-name: Deploy Angular from Artifact Registry to Google VM
+name: Deploy Angular from Artifact Registry to S3
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Enter the version to deploy (leave empty for latest)"
+        description: "Enter the frontend version to deploy (leave empty for latest)"
+        required: false
+      backend_version:
+        description: "Enter the backend version to deploy (leave empty for latest)"
         required: false
   push:
     branches:
-      - server
+      - cicd-impl
 
 jobs:
   deploy:
@@ -18,102 +21,169 @@ jobs:
       contents: read
 
     steps:
-      - name: 🧾 Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🔐 Authenticate with Google Cloud (Workload Identity Federation)
+      - name: Authenticate with Google Cloud using Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: "projects/297178011153/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
-          service_account: "doqfy-storage@crucial-context-454812-v3.iam.gserviceaccount.com"
-          project_id: "crucial-context-454812-v3"
+          workload_identity_provider: "projects/910750959879/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "migration@silent-snow-331616.iam.gserviceaccount.com"
+          project_id: "silent-snow-331616"
 
-      - name: ⚙️ Set up Google Cloud SDK
+      - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: crucial-context-454812-v3
+          project_id: silent-snow-331616
 
-      - name: 📌 Select Deployment Version
+      - name: Configure gcloud
+        run: gcloud config set project silent-snow-331616
+
+      - name: Determine Frontend Deployment Version
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
             SELECTED_VERSION="${{ github.event.inputs.version }}"
           else
             SELECTED_VERSION=$(gcloud artifacts versions list \
-              --repository=auth-gateway-frontend-cicd \
-              --location=us-west2 \
-              --package=auth-frontend \
+              --repository=auth-gateway-frontend \
+              --location=asia-south1 \
+              --package=frontend \
               --sort-by=~CREATE_TIME \
               --limit=1 \
               --format='value(name)')
           fi
           echo "SELECTED_VERSION=$SELECTED_VERSION" >> $GITHUB_ENV
 
-      - name: 📁 Create Download Directory
+      - name: Determine Backend Deployment Version
+        run: |
+          if [ -n "${{ github.event.inputs.backend_version }}" ]; then
+            SELECTED_BACKEND_VERSION="${{ github.event.inputs.backend_version }}"
+          else
+            SELECTED_BACKEND_VERSION=$(gcloud artifacts versions list \
+              --repository=auth-gateway-backend \
+              --location=asia-south1 \
+              --package=auth-backend \
+              --sort-by=~CREATE_TIME \
+              --limit=1 \
+              --format='value(name)')
+          fi
+          echo "SELECTED_BACKEND_VERSION=$SELECTED_BACKEND_VERSION" >> $GITHUB_ENV
+
+      - name: Ensure Download Directory Exists
         run: mkdir -p downloaded_package
 
-      - name: 🔎 Get Package File from Artifact Registry
+      - name: Find Package File for Selected Frontend Version
         run: |
           SELECTED_FILE=$(gcloud artifacts files list \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2 \
-            --package=auth-frontend \
+            --repository=auth-gateway-frontend \
+            --location=asia-south1 \
+            --package=frontend \
             --version=$SELECTED_VERSION \
             --sort-by=~CREATE_TIME \
             --limit=1 \
             --format='value(name)')
           echo "SELECTED_FILE=$SELECTED_FILE" >> $GITHUB_ENV
 
-      - name: 📥 Download Package File
+      - name: Download Selected Frontend Package
         run: |
           gcloud artifacts files download "$SELECTED_FILE" \
-            --repository=auth-gateway-frontend-cicd \
-            --location=us-west2 \
-            --destination=downloaded_package/ \
-            --project=crucial-context-454812-v3
+            --repository=auth-gateway-frontend \
+            --location=asia-south1 \
+            --destination=downloaded_package/
 
-      - name: 🏷️ Rename Downloaded Package
+      - name: Rename Downloaded Frontend Package
         run: |
-          FILE_NAME=$(basename "$SELECTED_FILE")
-          ACTUAL_FILE=$(ls downloaded_package/ | grep "${FILE_NAME}" || true)
+          ACTUAL_FILE=$(ls downloaded_package/ | grep "$(basename "$SELECTED_FILE" | sed 's/%2F/\//g')")
           if [ -z "$ACTUAL_FILE" ]; then
-            echo "❌ Error: Downloaded file not found!"
+            echo "Error: Downloaded file not found!"
             exit 1
           fi
           mv "downloaded_package/$ACTUAL_FILE" "downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz"
 
-      - name: 📦 Extract .tgz Package
+      - name: Extract Frontend Package
         run: |
           tar -xzf downloaded_package/frontend-${{ env.SELECTED_VERSION }}.tgz -C downloaded_package/
-          ls -la downloaded_package/
+          ls -l downloaded_package/
 
-      - name: 🔍 Locate dist/auth-portal Folder
+      - name: Locate Dist Folder
         run: |
-          DIST_PATH=$(find downloaded_package -type d -name "auth-portal" -print -quit)
+          DIST_PATH=$(find downloaded_package -type d -name "dist" -print -quit)
           if [ -z "$DIST_PATH" ]; then
-            echo "❌ Error: 'auth-portal' folder not found!"
+            echo "Error: 'dist' folder not found!"
             exit 1
           fi
           echo "DIST_PATH=$DIST_PATH" >> $GITHUB_ENV
 
-      - name: 🚀 Upload to Google VM via SCP
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Upload Dist Folder to AWS S3
+        run: |
+          if [ -d "${{ env.DIST_PATH }}/auth-portal" ]; then
+            aws s3 sync "${{ env.DIST_PATH }}/auth-portal" s3://auth-gateway-frontend/ --delete
+          else
+            echo "Error: 'auth-portal' folder not found inside 'dist'!"
+            exit 1
+          fi
+
+# --- VPN Setup START ---
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openvpn
+
+      - name: Decode and Save .ovpn File
+        run: |
+          echo "${{ secrets.OVPN_CONFIG_B64 }}" | base64 -d > vpn-config.ovpn
+          echo "${{ secrets.VPN_AUTH_B64 }}" | base64 -d > auth.txt
+
+      - name: Connect to VPN
+        run: |
+          sudo openvpn --config vpn-config.ovpn --daemon
+          sleep 10
+          echo "VPN connected"
+# --- VPN Setup END ---
+
+      - name: Generate GCP Docker Access Token
+        run: |
+          gcloud auth print-access-token > gcloud_token.txt
+
+      - name: Upload GCP Access Token to GCP Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "${{ env.DIST_PATH }}"
-          target: "/tmp/frontend-${{ env.SELECTED_VERSION }}"
+          source: "gcloud_token.txt"
+          target: "~/"
 
-      - name: 🔧 Deploy to /var/www/html on VM
+      - name: Deploy Backend from Google Artifact Registry
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🔁 Replacing current frontend with version: ${{ env.SELECTED_VERSION }}"
-            sudo rm -rf /var/www/html/*
-            sudo cp -r /tmp/frontend-${{ env.SELECTED_VERSION }}/* /var/www/html/
-            sudo rm -rf /tmp/frontend-${{ env.SELECTED_VERSION }}
-            sudo systemctl restart nginx || echo "Nginx not running or not needed."
-            echo "✅ Frontend version ${{ env.SELECTED_VERSION }} deployed successfully."
+            echo "Logging in to Google Artifact Registry..."
+            cat ~/gcloud_token.txt | docker login -u oauth2accesstoken --password-stdin https://asia-south1-docker.pkg.dev
+
+            echo "Stopping and removing any existing backend container..."
+            docker stop auth_service || true && docker rm auth_service || true
+
+            echo "Pulling the selected backend image from GAR..."
+            docker pull asia-south1-docker.pkg.dev/silent-snow-331616/auth-gateway-backend/auth-backend:${{ env.SELECTED_BACKEND_VERSION }}
+
+            echo "Starting new backend container..."
+            docker run -d \
+              --name auth_service \
+              --network auth_default \
+              -v /home/Rwoqbanuswoambn/AUTH/docker_config/python_config/deploy_commands.sh:/deploy_commands.sh \
+              -v /home/Rwoqbanuswoambn/AUTH/logs:/logs \
+              asia-south1-docker.pkg.dev/silent-snow-331616/auth-gateway-backend/auth-backend:${{ env.SELECTED_BACKEND_VERSION }} \
+              /bin/bash -c "echo 'Starting django server ...' && /deploy_commands.sh"
+
+            echo "✅ Backend deployment complete."
